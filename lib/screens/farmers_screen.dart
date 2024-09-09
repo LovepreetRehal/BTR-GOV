@@ -322,7 +322,7 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                                 builder: (context) =>
                                                     AddFarmerScreen(
                                                   edit: true,
-                                                  id: data["farmer_uuid"],
+                                                  id: data["uuid"],
                                                 ),
                                               ),
                                             );
