@@ -4,6 +4,7 @@ import 'package:btr_gov/data/ApiClient.dart';
 import 'package:btr_gov/model/Farmarlist.dart';
 import 'package:btr_gov/retrofit/utils.dart';
 import 'package:btr_gov/screens/add_farmer_screen.dart';
+import 'package:btr_gov/screens/view_farmer_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -15,11 +16,14 @@ class FarmersScreen extends StatefulWidget {
 }
 
 class _FarmerScreenState extends State<FarmersScreen> {
-  String? _selectedDistrict = 'All';
-  String? _selectedBlock = 'All';
-  String? _selectedVCDC = 'All';
-  String? _selectedRevenueVillage = 'All';
+
   String? _selectedOccupations = 'All';
+
+  String? _selectedDistricts; // Set initial value to match the list
+  String? _selectedBlocks; // Set initial value to match the list
+  String? _selectedVcdcs; // Set initial value to m
+  String? _selectedRevenueVillages;
+
 
   final List<String> _districts = [
     'All',
@@ -28,13 +32,13 @@ class _FarmerScreenState extends State<FarmersScreen> {
     'District 3'
   ];
   final List<String> _blocks = ['All', 'Block 1', 'Block 2', 'Block 3'];
-  final List<String> _vcdcs = ['All', 'VCDC 1', 'VCDC 2', 'VCDC 3'];
-  final List<String> _revenueVillages = [
-    'All',
-    'Village 1',
-    'Village 2',
-    'Village 3'
-  ];
+  // final List<String> _vcdcs = ['All', 'VCDC 1', 'VCDC 2', 'VCDC 3'];
+  // final List<String> _revenueVillages = [
+  //   'All',
+  //   'Village 1',
+  //   'Village 2',
+  //   'Village 3'
+  // ];
   final List<String> _occupations = [
     'All',
     'Farmer',
@@ -46,10 +50,20 @@ class _FarmerScreenState extends State<FarmersScreen> {
   bool loadlist = true;
   var paramdic = {"": ""};
 
+  var _Alldata;
+
+  List<Map<String, dynamic>> _district = [];
+  List<Map<String, dynamic>> _block = [];
+  List<Map<String, dynamic>> _vcdcs = [];
+  List<Map<String, dynamic>> _revenueVillages = [];
+  List<Map<String, dynamic>> _farmerCategories = [];
+
+
   @override
   void initState() {
     getdata();
     super.initState();
+    fetchCategoryWiseFarmerStats();
   }
 
   getdata() {
@@ -65,6 +79,47 @@ class _FarmerScreenState extends State<FarmersScreen> {
       setState(() {});
     });
   }
+
+
+  void fetchCategoryWiseFarmerStats() async {
+    final Map<String, String> queryParams = {'': ''};
+    ApiClient()
+        .getData(
+      Utils.dashboard,
+      true,
+      queryParams,
+    )
+        .then((onValue) {
+      if (onValue.statusCode == 200) {
+        setState(() {
+          final responseData = json.decode(onValue.body);
+
+          _Alldata = responseData["data"];
+          _farmerCategories = List<Map<String, dynamic>>.from(
+              responseData["data"]["categoryWiseFarmerStats"]);
+          ;
+          _district = List<Map<String, dynamic>>.from(
+              responseData["data"]["districts"]);
+          setState(() {});
+          // final farmerStatsResponse =
+          //     FarmerStatsResponse.fromJson(responseData);
+          // _categoryWiseFarmerStats =
+          //     farmerStatsResponse.data.categoryWiseFarmerStats;
+          // _landTypeWiseLandStats =
+          //     farmerStatsResponse.data.landTypeWiseLandStats;
+          // _district = farmerStatsResponse.data.districts;
+          // _block = farmerStatsResponse.data.blocks;
+          // _vcdc = farmerStatsResponse.data.vcdcs;
+          // _villages = farmerStatsResponse.data.villages;
+        });
+      } else {
+        // Handle the error case
+        print('Error: ${onValue.body}');
+      }
+    });
+  }
+
+
 
   apiCall(id) {
     ApiClient().deleteData(Utils.deleteDetail + id, true).then((onValue) {
@@ -130,46 +185,97 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 8),
-                                  _buildDropdown(
-                                      'District', _selectedDistrict, _districts,
-                                      (String? newValue) {
+
+                                  _buildDropdown_second(
+                                      'District:', _selectedDistricts, _district,
+                                          (dynamic? newValue) {
+                                        print(newValue);
+                                        var list = _district.firstWhere((district) =>
+                                        district["name"] == newValue)["blocks"];
+                                        var list2 =
+                                        List<Map<String, dynamic>>.from(list);
+                                        _selectedBlocks = null;
+                                        _block.clear();
+                                        _block.addAll(list2);
+                                        setState(() {
+                                          _selectedDistricts = newValue;
+                                        });
+                                      }),
+                                  const SizedBox(height: 16),
+                                  _buildDropdown_second(
+                                      'Block:', _selectedBlocks, _block,
+                                          (dynamic? newValue) {
+                                        print(newValue);
+                                        var list = _Alldata["blocks"].firstWhere(
+                                                (district) =>
+                                            district["name"] ==
+                                                newValue)["vcdcs"];
+                                        _selectedVcdcs = null;
+                                        _vcdcs.clear();
+                                        _vcdcs.addAll(
+                                            List<Map<String, dynamic>>.from(list));
+                                        setState(() {
+                                          _selectedBlocks = newValue;
+                                        });
+                                      }),
+                                  const SizedBox(height: 16),
+                                  _buildDropdown_second(
+                                      'VCDC :', _selectedVcdcs, _vcdcs,
+                                          (dynamic? newValue) {
+                                        var list = _Alldata["vcdcs"].firstWhere(
+                                                (district) =>
+                                            district["name"] ==
+                                                newValue)["revenueVillages"];
+                                        _selectedRevenueVillages = null;
+                                        _revenueVillages.clear();
+                                        _revenueVillages.addAll(
+                                            List<Map<String, dynamic>>.from(list));
+                                        setState(() {
+                                          _selectedVcdcs = newValue;
+                                        });
+                                      }),
+                                  const SizedBox(height: 16),
+                                  _buildDropdown_second(
+                                      'Revenue Village:',
+                                      _selectedRevenueVillages,
+                                      _revenueVillages, (dynamic? newValue) {
                                     setState(() {
-                                      _selectedDistrict = newValue;
+                                      _selectedRevenueVillages = newValue;
                                     });
                                   }),
-                                  const SizedBox(height: 8),
-                                  _buildDropdown(
-                                      'Block', _selectedBlock, _blocks,
-                                      (String? newValue) {
-                                    setState(() {
-                                      _selectedBlock = newValue;
-                                    });
-                                  }),
-                                  const SizedBox(height: 8),
-                                  _buildDropdown('VCDC', _selectedVCDC, _vcdcs,
-                                      (String? newValue) {
-                                    setState(() {
-                                      _selectedVCDC = newValue;
-                                    });
-                                  }),
-                                  const SizedBox(height: 8),
-                                  _buildDropdown(
-                                      'Revenue Village',
-                                      _selectedRevenueVillage,
-                                      _revenueVillages, (String? newValue) {
-                                    setState(() {
-                                      _selectedRevenueVillage = newValue;
-                                    });
-                                  }),
-                                  const SizedBox(height: 8),
-                                  _buildDropdown(
-                                      'Education',
-                                      _selectedRevenueVillage,
-                                      _revenueVillages, (String? newValue) {
-                                    setState(() {
-                                      _selectedRevenueVillage = newValue;
-                                    });
-                                  }),
+                                  const SizedBox(height: 16),
+
+                                  // _buildDropdown('District', _selectedDistrict, _districts, (String? newValue) {
+                                  //   setState(() {
+                                  //     _selectedDistrict = newValue;
+                                  //   });
+                                  // }),
+                                  // const SizedBox(height: 8),
+
+                                  // _buildDropdown('Block', _selectedBlock, _blocks, (String? newValue) {
+                                  //   setState(() {
+                                  //     _selectedBlock = newValue;
+                                  //   });
+                                  // }),
+                                  // const SizedBox(height: 8),
+                                  // _buildDropdown('VCDC', _selectedVCDC, _vcdcs,
+                                  //     (String? newValue) {
+                                  //   setState(() {
+                                  //     _selectedVCDC = newValue;
+                                  //   });
+                                  // }),
+                                  // const SizedBox(height: 8),
+                                  // _buildDropdown('Revenue Village', _selectedRevenueVillage, _revenueVillages, (String? newValue) {
+                                  //   setState(() {
+                                  //     _selectedRevenueVillage = newValue;
+                                  //   });
+                                  // }),
+                                  // const SizedBox(height: 8),
+                                  // _buildDropdown('Education', _selectedRevenueVillage, _revenueVillages, (String? newValue) {
+                                  //   setState(() {
+                                  //     _selectedRevenueVillage = newValue;
+                                  //   });
+                                  // }),
                                 ]))),
 
                     SizedBox(height: 36),
@@ -289,29 +395,19 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                         _buildRow("Block", data["block"]),
                                       ],
                                     ),
+
                                     SizedBox(height: 6),
-                                    Row(
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal margin
+                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         _buildRow("VCDC", data["vcdc"]),
                                         _buildRow("Village", data["vill_1"]),
                                       ],
-                                    ),
-                                    // InkWell(
-                                    //     onTap: () {
-                                    //       Navigator.of(context)
-                                    //           .push(MaterialPageRoute(
-                                    //         builder: (context) =>
-                                    //             AddFarmerScreen(
-                                    //           edit: true,
-                                    //           id: data["farmer_uuid"],
-                                    //         ),
-                                    //       ));
-                                    //     },
-                                    //     child: Icon(
-                                    //       Icons.edit,
-                                    //     ))
+                                    )),
+                                    SizedBox(height: 6),
                                     Row(
                                       children: [
                                         // Edit button
@@ -328,6 +424,19 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                             );
                                           },
                                           child: Icon(Icons.edit),
+                                        ),  InkWell(
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ViewFarmerScreen(
+                                                  edit: true,
+                                                  id: data["uuid"],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Icon(Icons.remove_red_eye),
                                         ),
                                         // Edit text field
 
@@ -470,6 +579,54 @@ class _FarmerScreenState extends State<FarmersScreen> {
       ],
     );
   }
+
+  Widget _buildDropdown_second(String label, String? selectedValue,
+      List<Map<String, dynamic>> items, ValueChanged<dynamic?> onChanged) {
+    // Ensure that selectedValue is either null or matches one of the items
+    // String? validatedSelectedValue =
+    //     items.contains(selectedValue) ? selectedValue : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4.0),
+            border: Border.all(color: Colors.grey),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<dynamic>(
+              hint: Text('Select value'),
+              value: selectedValue ?? null,
+              isExpanded: true,
+              onChanged: (dynamic? newValue) {
+                onChanged(newValue);
+              },
+              items: items.map((dynamic item) {
+                return DropdownMenuItem<String>(
+                  value: item["name"],
+                  child: Text(item["name"]),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
 
   Widget _buildTextField(
     String label,

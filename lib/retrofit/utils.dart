@@ -9,7 +9,7 @@ class Utils {
   static const String store = '/api/farmers/details/store';
   static const String stats = '/api/admin/dashboard/stats';
   static const String dashboard = '/api/admin/dashboard';
-  static const String editDetail = '/api/farmers/details/show/';
+  static const String editDetail = '/api/farmers/details/show';
   static const String deleteDetail = '/api/farmers/details/delete/';
 
   // static const String logo = 'assets/images/logo.svg';
