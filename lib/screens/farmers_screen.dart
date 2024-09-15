@@ -397,16 +397,15 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                     ),
 
                                     SizedBox(height: 6),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal margin
-                                   child: Row(
+                                // Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), // Add horizontal margin
+                                   Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         _buildRow("VCDC", data["vcdc"]),
                                         _buildRow("Village", data["vill_1"]),
                                       ],
-                                    )),
+                                    ),
                                     SizedBox(height: 6),
                                     Row(
                                       children: [

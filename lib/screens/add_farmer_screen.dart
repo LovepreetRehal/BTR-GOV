@@ -64,8 +64,6 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   String? _middleName = 'test';
 
   var paramdic = {"": ""};
-
-  Farmersingledetail? _Farmersingledetail;
   bool loadlist = true;
 
   bool _isLoading = false;
@@ -168,11 +166,11 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       return;
     }
 
-    if (_middleNameController.text.trim().isEmpty) {
-      print('Please enter Middle Name');
-      Utils.toast('Please enter Middle Name');
-      return;
-    }
+    // if (_middleNameController.text.trim().isEmpty) {
+    //   print('Please enter Middle Name');
+    //   Utils.toast('Please enter Middle Name');
+    //   return;
+    // }
 
     if (_lastNameController.text.trim().isEmpty) {
       print('Please enter Last Name');
@@ -180,11 +178,11 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       return;
     }
 
-    if (_emailController.text.trim().isEmpty || !_isValidEmail(_emailController.text)) {
-      print('Please enter a valid Email Address');
-      Utils.toast('Please enter a valid Email Address');
-      return;
-    }
+    // if (_emailController.text.trim().isEmpty || !_isValidEmail(_emailController.text)) {
+    //   print('Please enter a valid Email Address');
+    //   Utils.toast('Please enter a valid Email Address');
+    //   return;
+    // }
 
     if (_mobilenumberController.text.trim().isEmpty || !_isValidPhoneNumber(_mobilenumberController.text)) {
       print('Please enter a valid Mobile Number');
@@ -193,8 +191,8 @@ class _AddFarmerState extends State<AddFarmerScreen> {
     }
 
     if (_aadharCardController.text.trim().isEmpty || !_isValidAadharNumber(_aadharCardController.text)) {
-      print('Please enter a valid Aadhar Number');
-      Utils.toast('Please enter a valid Aadhar Number');
+      print('Please enter a valid Aadhaar Number');
+      Utils.toast('Please enter a valid Aadhaar Number');
       return;
     }
 
@@ -216,35 +214,35 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       return;
     }
 
-    if (_FamilyNameController.text.trim().isEmpty) {
-      print('Please enter Family Name');
-      Utils.toast('Please enter Family Name');
-      return;
-    }
+    // if (_FamilyNameController.text.trim().isEmpty) {
+    //   print('Please enter Family Name');
+    //   Utils.toast('Please enter Family Name');
+    //   return;
+    // }
 
-    if (_hornetController.text.trim().isEmpty) {
-      print('Please enter Hornet Number');
-      Utils.toast('Please enter Hornet Number');
-      return;
-    }
+    // if (_hornetController.text.trim().isEmpty) {
+    //   print('Please enter Hornet Number');
+    //   Utils.toast('Please enter Hornet Number');
+    //   return;
+    // }
+    //
+    // if (_villageNameController.text.trim().isEmpty) {
+    //   print('Please enter Village Name');
+    //   Utils.toast('Please enter Village Name');
+    //   return;
+    // }
+    //
+    // if (_panCardController.text.trim().isEmpty) {
+    //   print('Please enter PAN Card Number');
+    //   Utils.toast('Please enter PAN Card Number');
+    //   return;
+    // }
 
-    if (_villageNameController.text.trim().isEmpty) {
-      print('Please enter Village Name');
-      Utils.toast('Please enter Village Name');
-      return;
-    }
-
-    if (_panCardController.text.trim().isEmpty) {
-      print('Please enter PAN Card Number');
-      Utils.toast('Please enter PAN Card Number');
-      return;
-    }
-
-    if (_rationCardController.text.trim().isEmpty) {
-      print('Please enter Ration Card Number');
-      Utils.toast('Please enter Ration Card Number');
-      return;
-    }
+    // if (_rationCardController.text.trim().isEmpty) {
+    //   print('Please enter Ration Card Number');
+    //   Utils.toast('Please enter Ration Card Number');
+    //   return;
+    // }
 
     if (_voterCardController.text.trim().isEmpty) {
       print('Please enter Voter Card Number');
@@ -263,12 +261,12 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       Utils.toast('Please enter a valid number of Female Members');
       return;
     }
-
-    if (_pmkishanController.text.trim().isEmpty) {
-      print('Please enter PM Kishan Number');
-      Utils.toast('Please enter PM Kishan Number');
-      return;
-    }
+    //
+    // if (_pmkishanController.text.trim().isEmpty) {
+    //   print('Please enter PM Kishan Number');
+    //   Utils.toast('Please enter PM Kishan Number');
+    //   return;
+    // }
 
     if (_childrenNoController.text.trim().isEmpty || !RegExp(r'^\d+$').hasMatch(_childrenNoController.text)) {
       print('Please enter a valid number of Children');
@@ -421,7 +419,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
           print("Done ${onValue.body}");
         } else {
           var data = json.decode(onValue.body);
-          Utils.toast(data["message"].toString());
+          Utils.toast(data["errors"].toString());
           print("Done ${onValue.body}");
         }
         setState(() {
@@ -688,7 +686,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   _mobileNumber = value ?? '';
 
                                   print('Mobile Number changed: $value');
-                                }, isPhone: true),
+                                }, isPhone: true,maxLength: 10),
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                     'Alternate Mobile Number :',
@@ -698,7 +696,8 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   _alternateMobileNumber = value ?? '';
 
                                   print('Mobile Number changed: $value');
-                                }, isPhone: true),
+                                }, isPhone: true,maxLength: 10
+                                ),
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                   'Email:',
@@ -726,11 +725,8 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     _hornetController, (value) {
                                   // Handle the changed text
                                   setState(() {
-                                    _hornetNumber = value;
-                                  });
-
-                                  print('Hornet Number changed: $value');
-                                }, isPhone: true),
+                                    _hornetNumber = value;});
+                                  }, isPhone: true,maxLength: 10),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
                                     'Monthly Family Income ✫ :',
@@ -859,14 +855,14 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 _buildTextField(
-                                  'Pincode::',
+                                  'Pincode:',
                                   'Enter PinCode',
                                   _pincodeController,
                                       (value) {
                                     // Handle the changed text
                                     _pincode = value;
                                     print('Email changed: $value');
-                                  },
+                                  },maxLength: 6,isPhone: true
                                 ),
                               ]))),
                   if (widget.edit == false) const SizedBox(height: 36),
@@ -943,7 +939,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     _aadharNumber = value;
 
                                     print('Aadhaar number changed: $value');
-                                  }, isPhone: true),
+                                  }, isPhone: true,maxLength: 12),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     'Pan card Number (Max size:10):',
@@ -953,7 +949,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                       // Handle the changed text
                                       _panCardNumber = value;
                                       print('Email changed: $value');
-                                    },
+                                    },maxLength: 10
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
@@ -965,7 +961,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                       _rationCardNumber = value;
 
                                       print('Cardnumber changed: $value');
-                                    },
+                                    },maxLength: 15
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
@@ -976,7 +972,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                       // Handle the changed text
                                       _voterNumber = value;
                                       print('Email changed: $value');
-                                    },
+                                    },maxLength: 10
                                   ),
                                 ]))),
                   const SizedBox(height: 36),
@@ -1008,7 +1004,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     // Handle the changed text
                                     _maleMember = value;
                                     print('male member changed: $value');
-                                  },
+                                  },isPhone: true
                                 ),
                                 const SizedBox(height: 16),
                                 _buildTextField(
@@ -1019,7 +1015,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     // Handle the changed text
                                     _feMaleMember = value;
                                     print('Email changed: $value');
-                                  },
+                                  },isPhone: true
                                 ),
                                 const SizedBox(height: 16),
                                 _buildDropdown(
@@ -1060,7 +1056,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     // Handle the changed text
                                     _noOfChildNumber = value;
                                     print('Email changed: $value');
-                                  },
+                                  },isPhone: true
                                 ),
                               ]))),
                   const SizedBox(height: 16),
@@ -1094,7 +1090,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   // Handle the changed text
                                   _accountNumber = value;
                                   print('male member changed: $value');
-                                },
+                                },isPhone: true,maxLength: 20
                               ),
                               const SizedBox(height: 16),
                               _buildTextField(
@@ -1116,7 +1112,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   // Handle the changed text
                                   _IFSCcode = value;
                                   print('Email changed: $value');
-                                },
+                                },maxLength: 11
                               ),
                               const SizedBox(height: 16),
                               _buildTextField(
