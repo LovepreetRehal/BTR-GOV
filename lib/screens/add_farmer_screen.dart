@@ -1351,11 +1351,11 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   }
 
 
-// Method to build the date picker field
+
   Widget _buildDatePickerField(
       String label,
       String hint,
-      TextEditingController controller, // Use a controller for the text field
+      TextEditingController controller,
       ValueChanged<String?> onChanged,
       ) {
     return Column(
@@ -1377,42 +1377,68 @@ class _AddFarmerState extends State<AddFarmerScreen> {
             borderRadius: BorderRadius.circular(4.0),
             border: Border.all(color: Colors.grey),
           ),
-          child: GestureDetector(
-            onTap: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
 
-              if (pickedDate != null) {
-                String formattedDate =
-                    "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
-                setState(() {
-                  _selectedDate = formattedDate;
-                  controller.text =
-                      formattedDate; // Update the controller with the selected date
-                });
-                onChanged(formattedDate);
-              }
-            },
-            child: AbsorbPointer(
-              child: TextField(
-                controller: controller,
-                // Attach the controller to the text field
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: hint,
+                    if (pickedDate != null) {
+                      String formattedDate =
+                          "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+                      setState(() {
+                        _selectedDate = formattedDate;
+                        controller.text = formattedDate; // Update the controller with the selected date
+                      });
+                      onChanged(formattedDate);
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: controller,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: hint,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              IconButton(
+                icon: Icon(Icons.calendar_today, color: Colors.grey),
+                onPressed: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+
+                  if (pickedDate != null) {
+                    String formattedDate =
+                        "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+                    setState(() {
+                      _selectedDate = formattedDate;
+                      controller.text = formattedDate; // Update the controller with the selected date
+                    });
+                    onChanged(formattedDate);
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ],
     );
   }
+
 
   Widget _buildSectionTitle(String title) {
     return Container(

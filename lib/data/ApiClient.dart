@@ -45,6 +45,39 @@ class ApiClient {
   }
 
 
+  Future<http.Response> getAssetsSearchData(String uri, bool header, dynamic bdy) async {
+    http.Response _response;
+    try {
+      if (header) {
+        await updateHeader();
+      }
+
+      final URI = Uri.https(appBaseUrl, uri);
+
+      print('====> API Call:' + URI.toString());
+
+      // If the body is not null or empty, pass it to the POST request
+      _response = await http
+          .post(
+        URI,
+        headers: _mainHeaders, // Ensure the headers are set
+        body: jsonEncode(bdy),  // Convert body to JSON if necessary
+      )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      print(_response.body);
+    } catch (e) {
+      print("catch: " + e.toString());
+      final res = {
+        "message": e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 400);
+    }
+
+    return _response;
+  }
+
+
   Future<http.Response> homeCategoryFilter(String uri, Map<String, String> queryParams, bool header) async {
     http.Response _response;
 

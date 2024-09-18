@@ -11,6 +11,7 @@ class Utils {
   static const String dashboard = '/api/admin/dashboard';
   static const String editDetail = '/api/farmers/details/show';
   static const String deleteDetail = '/api/farmers/details/delete/';
+  static const String assetsSearch = '/api/farmers/registration_id';
 
   // static const String logo = 'assets/images/logo.svg';
   // static const String downArrow = 'assets/images/arrow-down-fill.svg';
