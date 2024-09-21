@@ -45,6 +45,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   String? _addressLine = '';
   String? _pincode = '147021';
   String? _plotArea = '';
+  String? _pattaNumber = '';
   String? _villageName = '';
   final TextEditingController _villageNameController = TextEditingController();
   final TextEditingController _addressLineController = TextEditingController();
@@ -54,7 +55,9 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   final TextEditingController _dagNumberController = TextEditingController();
 
   var _Alldata;
+  var _LandData;
 
+  bool _click = true;
   bool loadlist = true;
 
   Singlefarmermodel? farmerData ;
@@ -94,6 +97,100 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
     });
   }
 
+  void getAssetsDetail(String? uuid) {
+    setState(() {
+      loadlist = true; // Set to true before starting the API call
+    });
+
+    ApiClient().getAssetsDetail(Utils.assetsDeatilGet+uuid!, true, paramdic).then((onValue) {
+      if (onValue.statusCode == 200) {
+        var responseBody = onValue.body;
+        print("Response Body: $responseBody");
+
+        try {
+          var data = json.decode(responseBody);
+          print("Decoded JSON: $data");
+
+          if (data is Map<String, dynamic> && data['data'] != null) {
+            _LandData = Singlefarmermodel.fromJson(data);
+            print("Parsed Data: ${_LandData?.toJson()}");
+            Utils.toast(_LandData!.message);
+
+            // Navigate to the next screen after successful data fetch
+            Navigator.push(context, MaterialPageRoute(builder: (context) => AssetsDeatilScreen(farmerData: _LandData)),);
+
+          } else {
+            print("Error: 'data' is null or unexpected structure");
+            Utils.toast(data['errors']);
+          }
+        } catch (e) {
+          print("Error parsing data: $e");
+        }
+      } else {
+        print("Error: ${onValue.statusCode}");
+        Utils.toast('The registration id field is required.');
+      }
+
+      setState(() {
+        loadlist = false; // Set to false after the data is loaded
+      });
+    }).catchError((error) {
+      print("Error: $error");
+      Utils.toast('The registration id field is required.');
+      setState(() {
+        loadlist = false; // Set to false even if there is an error
+      });
+    });
+  }
+
+
+
+  Future<void> _Create() async {
+    setState(() {
+      _click = true;
+    });
+    try {
+      var param = {
+        "addressStatus": "",
+        "plot_area": _plotArea.toString(),
+        "ownership_type": "OWT002",
+        "type_of_land": "LT001",
+        "country_code": "IN",
+        "state_code": '18',
+        "district_code": getcode(_Alldata['districts'], _selectedDistricts.toString()),
+        "block_code": getcode(_Alldata['blocks'], _selectedBlocks.toString()),
+        "vcdc_code": getcode(_Alldata['vcdcs'], _selectedVcdcs.toString()),
+        "revenue_village_code": getcode(_Alldata['villages'], _selectedRevenueVillages.toString()),
+        "address_line_1": _villageName.toString(),
+        "address_line_2": _addressLine.toString(),
+        "pincode": _pincode.toString(),
+        "patta_number": _pattaNumber.toString(),
+        "dag_number": _dagNumber.toString(),
+      };
+      print('rehal->>>>   $param');
+      ApiClient().addAssetsCreate(Utils.assetsCreate+farmerData!.data.farmer.uuid, param, []).then((onValue) {
+        if (onValue.statusCode == 200) {
+          var data = json.decode(onValue.body);
+          Utils.toast(data["message"].toString());
+          Navigator.pop(context);
+
+          print("Done ${onValue.body}");
+        } else {
+          var data = json.decode(onValue.body);
+          Utils.toast(data["errors"].toString());
+          print("Done ${onValue.body}");
+        }
+        setState(() {
+          _click = false;
+        });
+      });
+    } catch (e) {
+      setState(() {
+        _click = false;
+      });
+      Utils.toast(e.toString());
+    }
+  }
 
 
 
@@ -104,6 +201,41 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
 
     fetchCategoryWiseFarmerStats();
 
+  }
+
+
+
+
+  apiDeleteCall(id) {
+    ApiClient().deleteData(Utils.assetsDelete + id, true).then((onValue) {
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body);
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Success: ${data["message"] ?? "Data deleted successfully"}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          // getdata();
+
+        });
+        print(data["data"]);
+        _click = false;
+      } else {
+        var data = json.decode(onValue.body);
+
+        _click = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Success: ${data["message"] ?? "Data deleted successfully"}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      setState(() {});
+    });
   }
 
   @override
@@ -166,55 +298,61 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                     SizedBox(height: 6),
                     Row(
                       children: [
-                        // Edit button
-
+                        // Crops Button
                         ElevatedButton(
                           onPressed: () {
                             // Action for Crops button
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => CreateCropDetails()),
+                              MaterialPageRoute(builder: (context) => CreateCropDetails(farmerData?.data.farmer.uuid)),
                             );
                           },
                           style: OutlinedButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: BorderSide(color: Colors.black), // Black border
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding for smaller button
+                            minimumSize: Size(60, 30), // Minimum size for the button
                           ),
                           child: Text(
                             'Crops',
-                            style: TextStyle(color: Colors.black), // Black text
+                            style: TextStyle(color: Colors.black, fontSize: 12), // Smaller text size
                           ),
                         ),
-                        SizedBox(width: 16),
+                        SizedBox(width: 4), // Spacing between buttons
 
+                        // // View Button
+                        // ElevatedButton(
+                        //   onPressed: () {
+                        //     // Action for View button
+                        //   },
+                        //   style: OutlinedButton.styleFrom(
+                        //     backgroundColor: Colors.white,
+                        //     side: BorderSide(color: Colors.black), // Black border
+                        //     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
+                        //     minimumSize: Size(60, 30), // Minimum size for the button
+                        //   ),
+                        //   child: Text(
+                        //     'View',
+                        //     style: TextStyle(color: Colors.black, fontSize: 12), // Smaller text size
+                        //   ),
+                        // ),
+                        // SizedBox(width: 4),
+
+                        // Soil Button
                         ElevatedButton(
 
-                          onPressed: () {
-                            // Action for View button
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.black),
-                            backgroundColor: Colors.white// Black border
-                          ),
-                          child: Text(
-                            'View',
-                            style: TextStyle(color: Colors.black), // Black text
-                          ),
-                        ),
-                        SizedBox(width: 16),
-
-                        ElevatedButton(
                           onPressed: () {
                             // Action for Soil button
-
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => CreateSoilDetails()),
+                              MaterialPageRoute(builder: (context) => CreateSoilDetails(farmerData?.data.farmer.uuid)),
                             );
                           },
                           style: OutlinedButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: BorderSide(color: Colors.black), // Black border
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
+                            minimumSize: Size(60, 30), // Minimum size for the button
                           ),
                           child: Text(
                             'Soil',
@@ -275,7 +413,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                                     _pattaNumberController,
                                         (value) {
                                       // Handle the changed text
-                                      _plotArea = value;
+                                      _pattaNumber = value;
                                       print('FirstName changed: $value');
                                     },
                                     maxLength: 20
@@ -405,7 +543,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                                   ),
                                 ]))),
                     const SizedBox(height: 36),
-                    _buildSectionTitle("Save"),
+                    _buildSectionTitle("Submit"),
                     const  SizedBox(height: 20),
 
 
@@ -415,40 +553,29 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CreateSoilDetails()),
-                );
-
-                print('Button Pressed');
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.indigo[400],
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              child: Text(title),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            _Create();
+            // Navigator.push(context, MaterialPageRoute(builder: (context) => CreateCropDetails()),);
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.indigo[400], // Text color
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6.0),
+            ),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
-        ],
-      ),
-    );
+          child: Text(title),
+        ),
+      ],
+    ) ;
   }
 
 
@@ -663,6 +790,10 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
     );
   }
 
+  String getcode(List list, String select) {
+    var id = list.firstWhere((district) => district["name"] == select)["code"];
+    return id.toString();
+  }
 
 
 }

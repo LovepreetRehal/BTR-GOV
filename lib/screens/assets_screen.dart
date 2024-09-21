@@ -92,6 +92,7 @@ class _AssetsScreen extends State<AssetsScreen> {
                   Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                     elevation: 4,
+                    color: Colors.white,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -125,12 +126,11 @@ class _AssetsScreen extends State<AssetsScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   String registrationId = _registrationIdController.text.trim();
-                                  paramdic["registration_id"] = registrationId; // Update with actual ID
+                                  // paramdic["registration_id"] = registrationId; // Update with actual ID
+                                  paramdic["registration_id"] = '724221590191084490'; // Update with actual ID
                                   loadlist = true; // Show the progress bar
                                   setState(() {});
                                   getdata(); // Fetch data
-                                  //
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => AssetsDeatilScreen(farmerData: _Allfarmar)),);
 
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -170,12 +170,7 @@ class _AssetsScreen extends State<AssetsScreen> {
     );
   }
 
-  Widget _buildTextField1(
-      String label,
-      String hint,
-      TextEditingController controller,
-      ValueChanged<String?> onChanged,
-      ) {
+  Widget _buildTextField1(String label, String hint, TextEditingController controller, ValueChanged<String?> onChanged,) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -208,4 +203,6 @@ class _AssetsScreen extends State<AssetsScreen> {
       ],
     );
   }
+
+
 }

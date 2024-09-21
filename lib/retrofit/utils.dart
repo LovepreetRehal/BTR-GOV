@@ -12,6 +12,12 @@ class Utils {
   static const String editDetail = '/api/farmers/details/show';
   static const String deleteDetail = '/api/farmers/details/delete/';
   static const String assetsSearch = '/api/farmers/registration_id';
+  static const String assetsDeatilGet = '/api/farmers/assets/land/create/';
+  static const String addAssetsSoil = '/api/farmers/assets/land/soil/store';
+  static const String addAssetsCrop = '/api/farmers/assets/land/crops/store';
+  static const String deleteAssetsDetail = '/api/farmers/assets/land/delete/';
+  static const String assetsCreate = '/api/farmers/assets/land/update/';
+  static const String assetsDelete = '/api/farmers/assets/land/delete/';
 
   // static const String logo = 'assets/images/logo.svg';
   // static const String downArrow = 'assets/images/arrow-down-fill.svg';

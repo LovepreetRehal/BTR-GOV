@@ -36,9 +36,7 @@ class ApiClient {
       print(_response.body);
     } catch (e) {
       print("catech" + e.toString());
-      final res = {
-        "message": e.toString(),
-      };
+      final res = {"message": e.toString(),};
       _response = http.Response(jsonEncode(res), 400);
     }
     return _response;
@@ -62,6 +60,37 @@ class ApiClient {
         URI,
         headers: _mainHeaders, // Ensure the headers are set
         body: jsonEncode(bdy),  // Convert body to JSON if necessary
+      )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      print(_response.body);
+    } catch (e) {
+      print("catch: " + e.toString());
+      final res = {
+        "message": e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 400);
+    }
+
+    return _response;
+  }
+
+  Future<http.Response> getAssetsDetail(String uri, bool header, dynamic bdy) async {
+    http.Response _response;
+    try {
+      if (header) {
+        await updateHeader();
+      }
+
+      final URI = Uri.https(appBaseUrl, uri);
+
+      print('====> API Call:' + URI.toString());
+
+      // If the body is not null or empty, pass it to the POST request
+      _response = await http
+          .get(
+        URI,
+        headers: _mainHeaders, // Ensure the headers are set
       )
           .timeout(Duration(seconds: timeoutInSeconds));
 
@@ -141,6 +170,39 @@ class ApiClient {
   }
 
 
+  Future<http.Response> deleteAssetsData(String uri, bool header) async {
+    http.Response _response;
+    try {
+      if (header) {
+        await updateHeader();
+      }
+
+      Uri URI;
+      URI = Uri.https(appBaseUrl, uri);
+
+      // if (bdy.toString().isEmpty) {
+      //   URI = Uri.https(appBaseUrl, uri);
+      // } else {
+      //   URI = Uri.https(appBaseUrl, uri, bdy);
+      // }
+
+      print('====> API Call:' + URI.toString());
+
+      _response = await http
+          .post(URI, headers: _mainHeaders)
+          .timeout(Duration(seconds: timeoutInSeconds));
+      print(_response.body);
+    } catch (e) {
+      print("catch: " + e.toString());
+      final res = {
+        "message": e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 400);
+    }
+    return _response;
+  }
+
+
 
   Future<http.Response> postData(
     String uri,
@@ -173,6 +235,123 @@ class ApiClient {
   }
 
   Future<http.Response> postMultipartData(
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody,
+  ) async {
+    http.Response _response;
+    try {
+      await updateHeader();
+
+      final URI = Uri.https(appBaseUrl, uri);
+      print('====> API Body: $URI with ${multipartBody.length} files');
+
+      http.MultipartRequest _request = http.MultipartRequest('POST', URI);
+
+      if (multipartBody.length > 0) {
+        for (MultipartBody multipart in multipartBody) {
+          Uint8List _list = await multipart.file.readAsBytes();
+          _request.files.add(http.MultipartFile(
+            multipart.key,
+            multipart.file.readAsBytes().asStream(),
+            _list.length,
+            filename: '${multipart.file.name.toString()}.png',
+          ));
+        }
+      }
+
+      _request.fields.addAll(body);
+      _request.headers.addAll(_mainHeaders);
+      _response = await http.Response.fromStream(await _request.send());
+      print(_response.body);
+    } catch (e) {
+      final res = {
+        "message": noInternetMessage + e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 401);
+    }
+    return _response;
+  }
+
+  Future<http.Response> addAssetsSoil(
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody,
+  ) async {
+    http.Response _response;
+    try {
+      await updateHeader();
+
+      final URI = Uri.https(appBaseUrl, uri);
+      print('====> API Body: $URI with ${multipartBody.length} files');
+
+      http.MultipartRequest _request = http.MultipartRequest('POST', URI);
+
+      if (multipartBody.length > 0) {
+        for (MultipartBody multipart in multipartBody) {
+          Uint8List _list = await multipart.file.readAsBytes();
+          _request.files.add(http.MultipartFile(
+            multipart.key,
+            multipart.file.readAsBytes().asStream(),
+            _list.length,
+            filename: '${multipart.file.name.toString()}.png',
+          ));
+        }
+      }
+
+      _request.fields.addAll(body);
+      _request.headers.addAll(_mainHeaders);
+      _response = await http.Response.fromStream(await _request.send());
+      print(_response.body);
+    } catch (e) {
+      final res = {
+        "message": noInternetMessage + e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 401);
+    }
+    return _response;
+  }
+
+
+  Future<http.Response> addAssetsCrop(
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody,
+  ) async {
+    http.Response _response;
+    try {
+      await updateHeader();
+
+      final URI = Uri.https(appBaseUrl, uri);
+      print('====> API Body: $URI with ${multipartBody.length} files');
+
+      http.MultipartRequest _request = http.MultipartRequest('POST', URI);
+
+      if (multipartBody.length > 0) {
+        for (MultipartBody multipart in multipartBody) {
+          Uint8List _list = await multipart.file.readAsBytes();
+          _request.files.add(http.MultipartFile(
+            multipart.key,
+            multipart.file.readAsBytes().asStream(),
+            _list.length,
+            filename: '${multipart.file.name.toString()}.png',
+          ));
+        }
+      }
+
+      _request.fields.addAll(body);
+      _request.headers.addAll(_mainHeaders);
+      _response = await http.Response.fromStream(await _request.send());
+      print(_response.body);
+    } catch (e) {
+      final res = {
+        "message": noInternetMessage + e.toString(),
+      };
+      _response = http.Response(jsonEncode(res), 401);
+    }
+    return _response;
+  }
+  Future<http.Response> addAssetsCreate(
     String uri,
     Map<String, String> body,
     List<MultipartBody> multipartBody,

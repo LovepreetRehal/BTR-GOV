@@ -440,10 +440,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
     });
     var param = {
       "family_name": _familyName.toString(),
-      "monthly_income": (_incomes.indexWhere(
-              (e) => e.toString() == _monthlyIncome.toString()) +
-          1)
-          .toString(),
+      "monthly_income": (_incomes.indexWhere((e) => e.toString() == _monthlyIncome.toString()) + 1).toString(),
       "first_name": _firstName.toString(),
       "pincode": _pincode.toString(),
       "district_code":
