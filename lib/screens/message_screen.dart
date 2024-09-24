@@ -7,9 +7,28 @@ class MessageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFFE6E8FF),
+        // backgroundColor: Color(0xFF2F365F),
+        title: Row(
+          children: [
+            Image.asset(
+              'resources/image/BTRgov-logo.png', // Path to your logo
+              height: 50, // Adjust height as needed
+            ),
+            SizedBox(width: 8), // Space between logo and title
+            // Text(
+            //   'Add Farmer',
+            //   style: TextStyle(color: Colors.black), // Text color
+            // ),
+          ],
+        ),
+        centerTitle: false, // Center title is false since we are using Row
+
+      ),
       backgroundColor: Colors.white, // Set the background color of the Scaffold
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

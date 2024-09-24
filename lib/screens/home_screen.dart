@@ -1,6 +1,7 @@
 import 'package:btr_gov/screens/assets_screen.dart';
 import 'package:btr_gov/screens/farmers_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'add_farmer_screen.dart';
 import 'home_fragment_screen.dart';
 import 'message_screen.dart';
@@ -28,9 +29,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
 
   static List<Widget> _widgetOptions = <Widget>[
     HomeFragmentScreen(),
-    AddFarmerScreen(
-      edit: false,
-    ),
+    AddFarmerScreen(edit: false,),
     FarmersScreen(),
     AssetsScreen(),
     MessageScreen(),
@@ -55,57 +54,66 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
       //     title: const Text('Flutter BottomNavigationBar Example'),
       //     backgroundColor: Colors.green
       // ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: Center(child: _widgetOptions.elementAt(_selectedIndex),),
       backgroundColor:
           Colors.indigo[400], // Set the background color of the Scaffold
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: SvgPicture.asset(
+              'assets/images/dashoard.svg',
+              height: 24,
+              color: _selectedIndex == 0 ? Colors.white : Colors.grey,
+            ),
             label: 'Dashboard',
-            backgroundColor:
-                Colors.indigo, // Set the background color of the Scaffold
+            backgroundColor: Colors.indigo,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_add_outlined),
+            icon: SvgPicture.asset(
+              'assets/images/add_famer.svg',
+              height: 24,
+              color: _selectedIndex == 1 ? Colors.white : Colors.grey,
+            ),
             label: 'Add Farmers',
-            backgroundColor:
-                Colors.indigo, // Set the background color of the Scaffold
+            backgroundColor: Colors.indigo,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
+            icon: SvgPicture.asset(
+              'assets/images/farmer.svg',
+              height: 24,
+              color: _selectedIndex == 2 ? Colors.white : Colors.grey,
+            ),
             label: 'Farmers',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message_outlined),
+            icon: SvgPicture.asset(
+              'assets/images/assets.svg',
+              height: 24,
+              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
+            ),
             label: 'Assets',
-            backgroundColor:
-                Colors.indigo, // Set the background color of the Scaffold
+            backgroundColor: Colors.indigo,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.forward_to_inbox_outlined),
+            icon: SvgPicture.asset(
+              'assets/images/message.svg',
+              height: 24,
+              color: _selectedIndex == 4 ? Colors.white : Colors.grey,
+            ),
             label: 'Messages',
-            backgroundColor:
-                Colors.indigo, // Set the background color of the Scaffold
+            backgroundColor: Colors.indigo,
           ),
         ],
         currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.grey, // Set the unselected icon color
+        unselectedItemColor: Colors.grey,
         selectedItemColor: Colors.white,
         iconSize: 24,
-
         onTap: _onItemTapped,
         elevation: 5,
-        showSelectedLabels: true, // Show text labels always
-        showUnselectedLabels: true, // Show text labels always
-        selectedLabelStyle: const TextStyle(
-          fontSize: 10, // Smaller text size for selected labels
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 10, // Smaller text size for unselected labels
-        ),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: const TextStyle(fontSize: 10),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
       ),
     );
   }

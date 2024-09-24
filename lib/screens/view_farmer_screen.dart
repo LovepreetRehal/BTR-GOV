@@ -3,7 +3,10 @@ import 'dart:io';
 
 import 'package:btr_gov/data/ApiClient.dart';
 import 'package:btr_gov/retrofit/utils.dart';
+import 'package:btr_gov/screens/add_farmer_screen.dart';
+import 'package:btr_gov/screens/assets_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ViewFarmerScreen extends StatefulWidget {
@@ -87,61 +90,57 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
     }
   }
 
-  Future<void> getEditData(String id) async {
-    try {
-      final response = await ApiClient().getData(Utils.editDetail + "/$id", true, "");
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        data = data["data"][0];
 
-        // Split the full name into parts
-        List<String> nameParts = data['full_name'].split(' ');
-        if (nameParts.isNotEmpty) {
-          _firstNameController.text = nameParts[0];
-        }
-        if (nameParts.length > 2) {
-          _middleNameController.text = nameParts.sublist(1, nameParts.length - 1).join(' ');
-        }
-        if (nameParts.length > 1) {
-          _lastNameController.text = nameParts.last;
-        }
+  getEditData( String? id) {
+    loadlist = true;
+    ApiClient().getData(Utils.editDetail + "$id", true, "").then((onValue) {
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body);
+        print(data["data"]);
+        data = data["data"]["editFarmer"];
 
         _dobController.text = data['date_of_birth'] ?? '';
         _mobilenumberController.text = data['mobile_number'] ?? '';
-        _selectedValue = data['gender'] ?? '';
-        _selectedDistricts = data['address']['district'] ?? '';
-        _selectedBlocks = data['address']['block'] ?? '';
-        _selectedVcdcs = data['address']['vcdc'] ?? '';
-        _selectedRevenueVillages = data['address']['revenue_village'] ?? '';
+        _firstNameController.text = data['first_name'] ?? '';
+        _lastNameController.text = data['last_name'] ?? '';
+        _middleNameController.text = data['middle_name'] ?? '';
+        // _selectedValue = data['gender'] ?? '';
+        // _selectedDistricts = data['district'] ?? '';
+        // _selectedBlocks = data['bock'] ?? '';
+        // _selectedVcdcs = data['vcdc'] ?? '';
+        _selectedRevenueVillages = data['revenue_village'] ?? '';
         _alternateNumberController.text = data['alternate_number'] ?? '';
         _emailController.text = data['email'] ?? '';
         _hornetController.text = data['horticulture_id'] ?? '';
-        _villageNameController.text = data['address']['revenue_village'] ?? '';
-        _addressLineController.text = data['address']['address_line_1'] ?? '';
-        _pincodeController.text = data['address']['pincode'] ?? '';
-        _aadharCardController.text = data['aadhar_without_musk'] ?? '';
+        _villageNameController.text = data['revenue_village'] ?? '';
+        _addressLineController.text = data['address_line_1'] ?? '';
+        _pincodeController.text = data['pincode'] ?? '';
+        _aadharCardController.text = data['aadhar_number'] ?? '';
         _panCardController.text = data['pan_number'] ?? '';
-        _maleMemberController.text = data['male_members']?.toString() ?? '';
-        _feMaleMemberController.text = data['female_members']?.toString() ?? '';
+        _voterCardController.text = data['voter_number'] ?? '';
+        _maleMemberController.text = data['male_members'].toString() ?? '';
+        _feMaleMemberController.text = data['female_members'].toString() ?? '';
         _pmkishanController.text = data['is_pm_kishan'] ?? '';
-        _childrenNoController.text = data['total_member']?.toString() ?? '';
-        _photoImageURL = data['photograph']?.toString();
-        _aadharImageURL = data['aadhar_card_image']?.toString();
-        _voterIdImageURL = data['voter_card_image']?.toString();
-        _passbookImageURL = data['passbook_image']?.toString();
-
+        _childrenNoController.text = data['total_member'].toString() ?? '';
+        _accountNoController.text = data['acc_num'].toString() ?? '';
+        _accountHolderNameController.text = data['acc_holder_name'].toString() ?? '';
+        _ifscCodeController.text = data['ifsc_code'].toString() ?? '';
+        _bankNameController.text = data['bank_name'].toString() ?? '';
+        _branchNameController.text = data['branch_name'].toString() ?? '';
+        // _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
+        // _photoImageURL = data['photograph']?.toString();
+        // _aadharImageURL = data['aadhar_card_image']?.toString();
+        // _voterIdImageURL = data['voter_card_image']?.toString();
+        // _passbookImageURL = data['passbook_image']?.toString();
         loadlist = false;
-        setState(() {});
       } else {
         loadlist = false;
-        setState(() {});
       }
-    } catch (e) {
-      // Handle any errors here
-      loadlist = false;
       setState(() {});
-    }
+    });
   }
+
+
 
   Future<void> _pickImage(ImageSource source, String imageType) async {
     final XFile? image = await _picker.pickImage(source: source);
@@ -176,7 +175,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
     const String placeholderImageUrl = 'https://via.placeholder.com/100';
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           decoration: BoxDecoration(
@@ -225,10 +224,17 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
 
               const SizedBox(height: 8),
 
-              ElevatedButton(
-                onPressed: onUpload,
-                child: Text(buttonText),
+              Text(
+                buttonText,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              // ElevatedButton(
+              //   onPressed: onUpload,
+              //   child: Text(buttonText),
+              // ),
             ],
           ),
         ),
@@ -325,6 +331,96 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                color: Color(0xFF2F365F),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/farmer.svg', // Path to your SVG icon
+                        height: 24, // Adjust height as needed
+                        width: 24, // Adjust width as needed
+                      ),
+                      SizedBox(width: 8), // Space between icon and text
+                      Expanded( // Use Expanded to fill available width
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'View Farmer',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              if (loadlist)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black54, // semi-transparent background
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+              /*Row(
+                mainAxisAlignment: MainAxisAlignment.start, // Align the buttons to the start
+                children: [
+                  // View Assets Button
+                  ElevatedButton(
+                    onPressed: () {
+                      // Action for View Assets button
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent, // Button background color
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Button padding
+                      minimumSize: Size(100, 40), // Minimum button size
+                    ),
+                    child: Text(
+                      'View Assets',
+                      style: TextStyle(color: Colors.white), // Button text color
+                    ),
+                  ),
+
+                  SizedBox(width: 16), // Horizontal space between buttons
+
+                  // Edit Assets Button
+                  ElevatedButton(
+                    onPressed: () {
+                      // Action for Edit Assets button
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AssetsScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent, // Button background color
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Button padding
+                      minimumSize: Size(100, 40), // Minimum button size
+                    ),
+                    child: Text(
+                      'Edit Assets',
+                      style: TextStyle(color: Colors.white), // Button text color
+                    ),
+                  ),
+                ],
+              ),*/
+
+
               const SizedBox(height: 36),
               const Text(
                 'Personal Information',

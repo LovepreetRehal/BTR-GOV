@@ -83,7 +83,23 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Farmer'),
+        backgroundColor: Color(0xFFE6E8FF),
+        // backgroundColor: Color(0xFF2F365F),
+        title: Row(
+          children: [
+            Image.asset(
+              'resources/image/BTRgov-logo.png', // Path to your logo
+              height: 50, // Adjust height as needed
+            ),
+            SizedBox(width: 8), // Space between logo and title
+            // Text(
+            //   'Add Farmer',
+            //   style: TextStyle(color: Colors.black), // Text color
+            // ),
+          ],
+        ),
+        centerTitle: false, // Center title is false since we are using Row
+
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

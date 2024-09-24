@@ -43,6 +43,34 @@ class ApiClient {
   }
 
 
+  Future<http.Response> getAssetsLandEdit(String uri, bool header, dynamic bdy) async {
+    http.Response _response;
+    try {
+      if (header) {
+        await updateHeader();
+      }
+      final URI;
+      if (bdy.toString().isEmpty) {
+        URI = Uri.https(appBaseUrl, uri);
+      } else {
+        URI = Uri.https(appBaseUrl, uri, bdy);
+      }
+
+      print('====> API Call:' + URI.toString());
+
+      _response = await http
+          .get(URI, headers: _mainHeaders)
+          .timeout(Duration(seconds: timeoutInSeconds));
+      print(_response.body);
+    } catch (e) {
+      print("catech" + e.toString());
+      final res = {"message": e.toString(),};
+      _response = http.Response(jsonEncode(res), 400);
+    }
+    return _response;
+  }
+
+
   Future<http.Response> getAssetsSearchData(String uri, bool header, dynamic bdy) async {
     http.Response _response;
     try {

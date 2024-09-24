@@ -7,6 +7,7 @@ import 'package:btr_gov/screens/add_farmer_screen.dart';
 import 'package:btr_gov/screens/view_farmer_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class FarmersScreen extends StatefulWidget {
   const FarmersScreen({super.key});
@@ -157,21 +158,81 @@ class _FarmerScreenState extends State<FarmersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         // appBar: AppBar(title: const Text('Add Farmer'),),
+        appBar: AppBar(
+          backgroundColor: Color(0xFFE6E8FF),
+          // backgroundColor: Color(0xFF2F365F),
+          title: Row(
+            children: [
+              Image.asset(
+                'resources/image/BTRgov-logo.png', // Path to your logo
+                height: 50, // Adjust height as needed
+              ),
+              SizedBox(width: 8), // Space between logo and title
+              // Text(
+              //   'Add Farmer',
+              //   style: TextStyle(color: Colors.black), // Text color
+              // ),
+            ],
+          ),
+          centerTitle: false, // Center title is false since we are using Row
+
+        ),
         backgroundColor:
             Colors.white, // Set the background color of the Scaffold
         body: SingleChildScrollView(
           child: Padding(
+
               padding: const EdgeInsets.all(16.0),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'SuperAdministrator',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+
+                    const SizedBox(height: 16),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 4,
+                      color: Color(0xFF2F365F),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/farmer.svg', // Path to your SVG icon
+                              height: 24, // Adjust height as needed
+                              width: 24, // Adjust width as needed
+                            ),
+                            SizedBox(width: 8), // Space between icon and text
+                            Expanded( // Use Expanded to fill available width
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Farmers',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 36),
+
+                    // const Text(
+                    //   'SuperAdministrator',
+                    //   style: TextStyle(
+                    //     fontSize: 16,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
 
                     const SizedBox(height: 16),
                     Card(
@@ -179,6 +240,7 @@ class _FarmerScreenState extends State<FarmersScreen> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         elevation: 4,
+                        color: Colors.white,
                         child: Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: Column(
@@ -284,6 +346,7 @@ class _FarmerScreenState extends State<FarmersScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
+                        color: Colors.white,
                         elevation: 4,
                         child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -443,11 +506,38 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                         IconButton(
                                           icon: Icon(Icons.delete),
                                           onPressed: () {
-                                            setState(() {
-                                              apiCall(
-                                                data["uuid"],
-                                              );
-                                            });
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text('Are you sure you want to Delete?'),
+                                                  // content: Text(''),
+                                                  actions: [
+                                                    TextButton(
+                                                      child: Text('Cancel'),
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop(); // Close the dialog
+                                                      },
+                                                    ),
+                                                    TextButton(
+                                                      child: Text('OK'),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          apiCall(
+                                                            data["uuid"],
+                                                          );
+                                                        });
+                                                        Navigator.of(context).pop(); // Close the dialog
+
+                                                        // Close the dialog
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+
                                             // Handle delete action here
                                           },
                                         ),

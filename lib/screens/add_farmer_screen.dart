@@ -5,6 +5,7 @@ import 'package:btr_gov/data/ApiClient.dart';
 import 'package:btr_gov/model/Farmersingledetail.dart';
 import 'package:btr_gov/retrofit/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 
@@ -62,6 +63,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   String? _firstName = 'demo';
   String? _lastName = 'estte';
   String? _middleName = 'test';
+  String? _govJobHolder= '';
 
   var paramdic = {"": ""};
   bool loadlist = true;
@@ -86,30 +88,11 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   final List<String> _bplStatuses = ['Yes', 'No'];
   final List<String> _pmKishans = ['Yes', 'No'];
   final List<String> _occupations = ['Farmer', "Service", "Buiness", 'Other'];
-  final List<String> _religions = [
-    'Hindu',
-    'Christian',
-    'Muslim',
-    'Sikh',
-    'Buddhist',
-    'Jain',
-    'Other Religion',
-  ];
-  final List<String> _socialCategories = [
-    'ST',
-    'SC',
-    'OBC',
-    'GEN',
-  ];
+  final List<String> _religions = ['Hindu', 'Christian', 'Muslim', 'Sikh', 'Buddhist', 'Jain', 'Other Religion',];
+  final List<String> _socialCategories = ['ST', 'SC', 'OBC', 'GEN',];
   final List<String> _states = ['Assam'];
 
-  final List<String> _incomes = [
-    'Below 2000',
-    '2000 to 5000',
-    '5000 to 8000',
-    '8000 to 10,000',
-    'Above 10, 000',
-  ];
+  final List<String> _incomes = ['Below 2000', '2000 to 5000', '5000 to 8000', '8000 to 10,000', 'Above 10, 000',];
   final List<String> _salutation = ['Mr', 'Mrs', 'Late', 'Miss', 'Smt'];
 
   var _Alldata;
@@ -155,6 +138,8 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _branchNameController = TextEditingController();
 
+  bool hasGovtJob = false; // Checkbox state
+  TextEditingController govJobHolderController = TextEditingController();
 
   bool _click = false;
 
@@ -438,43 +423,119 @@ class _AddFarmerState extends State<AddFarmerScreen> {
     setState(() {
       _click = true;
     });
+
+    String genderCode = '';
+    if (_selectedValue != null && _selectedValue!.isNotEmpty) {
+      genderCode = 'GEN00' +
+          (_selected.indexWhere((e) => e.toString() == _selectedValue.toString()) + 1).toString();
+    } else {
+      // Handle the case where _selectedValue is empty or null
+      genderCode = 'GEN0001';  // Set a default value if needed
+    }
+
     var param = {
+
+
+
+
+
+
+
+
       "family_name": _familyName.toString(),
-      "monthly_income": (_incomes.indexWhere((e) => e.toString() == _monthlyIncome.toString()) + 1).toString(),
+      "monthly_income": (_incomes.indexWhere(
+              (e) => e.toString() == _monthlyIncome.toString()) +
+          1)
+          .toString(),
       "first_name": _firstName.toString(),
+      "middle_name": _middleName.toString(),
+      "last_name": _lastName.toString(),
+      "address_line_1": _addressLine.toString(),
+      "address_line_2": _selectedRevenueVillages.toString(),
       "pincode": _pincode.toString(),
+      "country_code": "IN",
+      "state_code": '18',
       "district_code":
       getcode(_Alldata['districts'], _selectedDistricts.toString()),
       "block_code": getcode(_Alldata['blocks'], _selectedBlocks.toString()),
       "vcdc_code": getcode(_Alldata['vcdcs'], _selectedVcdcs.toString()),
       "revenue_village_code":
       getcode(_Alldata['villages'], _selectedRevenueVillages.toString()),
-      "date_of_birth": _selectedDate.toString(),
-      "gender_code": 'GEN00' +
-          (_selected.indexWhere(
-                  (e) => e.toString() == _selectedValue.toString()) +
+      "date_of_birth": _dobController.text.toString(),
+      "gender_code":
+
+      'GEN00' +
+          (_selected.indexWhere((e) => e.toString() == _selectedValue.toString()) + 1).toString(),
+      "mobile_number": _mobilenumberController.text.toString(),
+      "alternate_number": _alternateNumberController.text.toString(),
+      "email": _emailController.text.toString(),
+      "farmer_category_code": 'CAT001',
+      "social_category_code": "0" +
+          (_socialCategories.indexWhere((e) =>
+          e.toString() == _selectedSocialCategories.toString()) +
               1)
               .toString(),
-      "mobile_number": _mobileNumber.toString(),
-      "alternate_number": _alternateMobileNumber.toString(),
-      "email": _emailAddress.toString(),
+      "education_code": "EDU00" +
+          (_education.indexWhere(
+                  (e) => e.toString() == _selectedEducation.toString()) +
+              1)
+              .toString(),
+      "religion_code": "0" +
+          (_religions.indexWhere(
+                  (e) => e.toString() == _selectedReligions.toString()) +
+              1)
+              .toString(),
+      "occupation_code": "OCC00" +
+          (_occupations.indexWhere((e) =>
+          e.toString() == _selectedOccupations.toString()) +
+              1)
+              .toString(),
+      "aadhar_number": _aadharNumber.toString(),
+      "aadhar_card_image": _aadharImage.toString(),
+      "voter_card_image": _voterIdImage.toString(),
+      "relation": "",
+      "pan_number": _panCardNumber.toString(),
+      "ration_card": _rationCardNumber.toString(),
+      "voter_number":  _voterCardController.text.toString(),
+      "govt_farmer_id": "",
+      "hortnet_id": "1111111111",
+      "is_head": "",
+      "family_head_id": "",
+      "salutation_id": "1",
+      "search": "",
+      "is_bpl": "0",
       "village": _selectedRevenueVillages.toString(),
-      "male_members": _maleMember.toString(),
-      "female_members": _feMaleMember.toString(),
-      "is_pm_kishan_holder": _pmKishans.toString(),
-      "pm_kishan_number": _pmKishansNumber.toString(),
+      "male_members": _maleMemberController.text.toString(),
+      "female_members": _feMaleMemberController.text.toString(),
+      "is_pm_kishan_holder": _selectedPmKishans.toString(),
+      "pm_kishan_number": _pmkishanController.text.toString(),
+      "is_financial_assistant_holder": "",
+      "amount": "100",
+      "received_year": "2000",
+      "scheme_name": "",
+      "open_pm_number": "0",
+      "acc_num": _accountNumber.toString(),
+      "acc_holder_name": _accountHolderName.toString(),
+      "ifsc_code": _IFSCcode.toString(),
+      "bank_name": _BankName.toString(),
+      "bank_branch_name": _BranchName.toString(),
+      "metadata[isGovtjob]": "0",
+
+
+
+
     };
 
     print('rehal->>>>   $param');
     ApiClient().postMultipartData(
-        Utils.store + "/${widget.id}", param, []).then((onValue) {
+        Utils.updateDetail + "${widget.id}", param, []).then((onValue) {
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         Utils.toast(data["message"].toString());
         print("Done ${onValue.body}");
       } else {
         var data = json.decode(onValue.body);
-        Utils.toast(data["message"].toString());
+        Utils.toast(data["errors"].toString());
         print("Done ${onValue.body}");
       }
       setState(() {
@@ -484,37 +545,60 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   }
 
   String getcode(List list, String select) {
-    var id = list.firstWhere((district) => district["name"] == select)["code"];
-    return id.toString();
+    try {
+      var id = list.firstWhere((district) => district["name"] == select,
+        orElse: () => null, // Fallback if no match is found
+      );
+
+      if (id == null) {
+        throw Exception('No matching district found.');
+      }
+
+      return id["code"].toString();
+    } catch (e) {
+      print('Error: $e');
+      return 'Not Found'; // Return a default or fallback value if needed
+    }
   }
 
+
   getEditData(bool edit, String? id) {
-    ApiClient().getData(Utils.editDetail + "/$id", true, "").then((onValue) {
+    loadlist = true;
+    ApiClient().getData(Utils.editDetail + "$id", true, "").then((onValue) {
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         print(data["data"]);
-        data = data["data"][0];
-        _firstNameController.text = data['full_name'] ?? '';
+        data = data["data"]["editFarmer"];
 
         _dobController.text = data['date_of_birth'] ?? '';
         _mobilenumberController.text = data['mobile_number'] ?? '';
-        _selectedValue = data['gender'] ?? '';
-        _selectedDistricts = data['address']['district'] ?? '';
-        _selectedBlocks = data['address']['block'] ?? '';
-        _selectedVcdcs = data['address']['vcdc'] ?? '';
-        _selectedRevenueVillages = data['address']['revenue_village'] ?? '';
+        _firstNameController.text = data['first_name'] ?? '';
+        _lastNameController.text = data['last_name'] ?? '';
+        _middleNameController.text = data['middle_name'] ?? '';
+        // _selectedValue = data['gender'] ?? '';
+        // _selectedDistricts = data['district'] ?? '';
+        // _selectedBlocks = data['bock'] ?? '';
+        // _selectedVcdcs = data['vcdc'] ?? '';
+        _selectedRevenueVillages = data['revenue_village'] ?? '';
         _alternateNumberController.text = data['alternate_number'] ?? '';
         _emailController.text = data['email'] ?? '';
         _hornetController.text = data['horticulture_id'] ?? '';
-        _villageNameController.text = data['address']['revenue_village'] ?? '';
-        _addressLineController.text = data['address']['address_line_1'] ?? '';
-        _pincodeController.text = data['address']['pincode'] ?? '';
-        _aadharCardController.text = data['aadhar_without_musk'] ?? '';
+        _villageNameController.text = data['revenue_village'] ?? '';
+        _addressLineController.text = data['address_line_1'] ?? '';
+        _pincodeController.text = data['pincode'] ?? '';
+        _aadharCardController.text = data['aadhar_number'] ?? '';
         _panCardController.text = data['pan_number'] ?? '';
+        _voterCardController.text = data['voter_number'] ?? '';
         _maleMemberController.text = data['male_members'].toString() ?? '';
         _feMaleMemberController.text = data['female_members'].toString() ?? '';
         _pmkishanController.text = data['is_pm_kishan'] ?? '';
         _childrenNoController.text = data['total_member'].toString() ?? '';
+        _accountNoController.text = data['acc_num'].toString() ?? '';
+        _accountHolderNameController.text = data['acc_holder_name'].toString() ?? '';
+        _ifscCodeController.text = data['ifsc_code'].toString() ?? '';
+        _bankNameController.text = data['bank_name'].toString() ?? '';
+        _branchNameController.text = data['branch_name'].toString() ?? '';
+        _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
 
         loadlist = false;
       } else {
@@ -560,8 +644,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         print('Error: ${onValue.body}');
       }
       if (widget.edit == true) {
-        getEditData(widget.edit,
-            widget.id); // Fetch farmer details when screen is opened
+        getEditData(widget.edit, widget.id); // Fetch farmer details when screen is opened
       }
     });
   }
@@ -584,20 +667,88 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Color(0xFFE6E8FF),
+          // backgroundColor: Color(0xFF2F365F),
+          title: Row(
+            children: [
+              Image.asset(
+                'resources/image/BTRgov-logo.png', // Path to your logo
+                height: 50, // Adjust height as needed
+              ),
+              SizedBox(width: 8), // Space between logo and title
+              // Text(
+              //   'Add Farmer',
+              //   style: TextStyle(color: Colors.black), // Text color
+              // ),
+            ],
+          ),
+          centerTitle: false, // Center title is false since we are using Row
+
+        ),
         body: SingleChildScrollView(
           child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 36),
-                  const Text(
-                    'Personal Information',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 4,
+                    color: Color(0xFF2F365F),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/images/farmer.svg', // Path to your SVG icon
+                            height: 24, // Adjust height as needed
+                            width: 24, // Adjust width as needed
+                          ),
+                          SizedBox(width: 8), // Space between icon and text
+                          Expanded( // Use Expanded to fill available width
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Create Farmer',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 36),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/personal_detials.svg', // Path to your SVG icon
+                        height: 24, // Adjust height as needed
+                        width: 24, // Adjust width as needed
+                      ),
+                      SizedBox(width: 8), // Space between icon and text
+                      const Text(
+                        'Personal Information',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 16),
                   Card(
                       shape: RoundedRectangleBorder(
@@ -735,18 +886,31 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                 }),
                               ]))),
                   const SizedBox(height: 36),
-                  const Text(
-                    'Address Information',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/address_inf.svg', // Path to your SVG icon
+                        height: 24, // Adjust height as needed
+                        width: 24, // Adjust width as needed
+                      ),
+                      SizedBox(width: 8), // Space between icon and text
+                      const Text(
+                        'Address Information',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
+
                   const SizedBox(height: 16),
                   Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
+                      color: Colors.white,
                       elevation: 4,
                       child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -862,22 +1026,38 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   },maxLength: 6,isPhone: true
                                 ),
                               ]))),
-                  if (widget.edit == false) const SizedBox(height: 36),
-                  if (widget.edit == false)
-                    const Text(
-                      'Social Information',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // if (widget.edit == false)
+                    const SizedBox(height: 36),
+                  // if (widget.edit == false)
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/socail_info.svg', // Path to your SVG icon
+                          height: 24, // Adjust height as needed
+                          width: 24, // Adjust width as needed
+                        ),
+                        SizedBox(width: 8), // Space between icon and text
+                        const Text(
+                          'Social Information',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  if (widget.edit == false) const SizedBox(height: 16),
-                  if (widget.edit == false)
+
+                  // if (widget.edit == false)
+                    const SizedBox(height: 16),
+                  // if (widget.edit == false)
                     Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         elevation: 4,
+                        color: Colors.white,
                         child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
@@ -973,19 +1153,33 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                   ),
                                 ]))),
                   const SizedBox(height: 36),
-                  const Text(
-                    'Family Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/family_detials.svg', // Path to your SVG icon
+                        height: 24, // Adjust height as needed
+                        width: 24, // Adjust width as needed
+                      ),
+                      SizedBox(width: 8), // Space between icon and text
+                      const Text(
+                        'Family Details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
+
+
                   const SizedBox(height: 16),
                   Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       elevation: 4,
+                      color: Colors.white,
                       child: Padding(
                           padding: const EdgeInsets.only(
                               left: 16, right: 16, bottom: 16, top: 5),
@@ -1032,6 +1226,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     _selectedPmKishans = newValue;
                                   });
                                 }),
+
                                 const SizedBox(height: 16),
                                 _buildTextField(
                                   'PM-Kishan Number:',
@@ -1055,23 +1250,72 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     print('Email changed: $value');
                                   },isPhone: true
                                 ),
+                                const SizedBox(height: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Is any of the family member has \n Govt. job:',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        Checkbox(
+                                          value: hasGovtJob,
+                                          onChanged: (bool? value) {
+                                            setState(() {
+                                              hasGovtJob = value ?? false;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    if (hasGovtJob) // Only show this if hasGovtJob is true
+                                      _buildTextField(
+                                        'No. of Govt. job holder:',
+                                        'How many Govt. job holder',
+                                        govJobHolderController,
+                                            (value) {
+                                          // Handle the changed text
+                                          _govJobHolder = value;
+
+                                          print('Email changed: $value');
+                                        },
+                                      ),
+                                  ],
+                                ),
                               ]))),
                   const SizedBox(height: 16),
                   const SizedBox(height: 36),
-                  if (widget.edit == false)
-                    const Text(
-                      'Account Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // if (widget.edit == false)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/account.svg', // Path to your SVG icon
+                          height: 24, // Adjust height as needed
+                          width: 24, // Adjust width as needed
+                        ),
+                        SizedBox(width: 8), // Space between icon and text
+                        const Text(
+                          'Account Details',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
+
+
                   const SizedBox(height: 16),
-                  if (widget.edit == false)
+                  // if (widget.edit == false)
                     Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
+                      color: Colors.white,
                       elevation: 4,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -1135,7 +1379,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                 },
                               ),
                               const SizedBox(height: 16),
-                              if (widget.edit == false)
+                              // if (widget.edit == false)
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
@@ -1151,6 +1395,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                                   ImageSource.camera, 'Image'),
                                             ),
                                           ),
+                                          const SizedBox(width: 8), // Add space between the containers
                                           Expanded(
                                             child: _buildImageUploadSection(
                                               title: 'Passbook Image',
@@ -1170,8 +1415,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              margin: const EdgeInsets.all(
-                                                  8.0), // Add margin to provide space
+                                              margin: const EdgeInsets.all(8.0), // Add margin to provide space
                                               child: _buildImageUploadSection(
                                                 title: 'Upload Aadhaar Card',
                                                 buttonText: 'Browse Image',
@@ -1182,13 +1426,10 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(
-                                              width:
-                                              8), // Add space between the containers
+                                          const SizedBox(width: 8), // Add space between the containers
                                           Expanded(
                                             child: Container(
-                                              margin: const EdgeInsets.all(
-                                                  8.0), // Add margin to provide space
+                                              margin: const EdgeInsets.all(8.0), // Add margin to provide space
                                               child: _buildImageUploadSection(
                                                 title: 'Upload Voter ID Card',
                                                 buttonText: 'Browse Image',
@@ -1200,15 +1441,98 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                             ),
                                           ),
                                         ],
-                                      )
+                                      ),
+                                      const SizedBox(height: 8),
+
                                     ],
                                   ),
                                 ),
                             ]),
                       ),
                     ),
+
+                  // if (widget.edit == false)
+                    const SizedBox(height: 16),
+                  if (widget.edit == false)
+                  // if (widget.edit == false)
+                    Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/images/photo_upload.svg', // Path to your SVG icon
+                        height: 24, // Adjust height as needed
+                        width: 24, // Adjust width as needed
+                      ),
+                      SizedBox(width: 8), // Space between icon and text
+                      const Text(
+                        'Photograph',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
+
                   const SizedBox(height: 16),
-                  _buildSectionTitle("Save")
+                  // if (widget.edit == false)
+                    Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    color: Colors.white,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            const SizedBox(height: 16),
+                            // if (widget.edit == false)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+
+
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            margin: const EdgeInsets.all(8.0), // Add margin to provide space
+                                            child: _buildImageUploadSection(
+                                              title: 'Photograph',
+                                              buttonText: 'Browse Image',
+                                              imageFile: _aadharImage,
+                                              onUpload: () => _pickImage(ImageSource.camera, 'aadhar'),
+                                            ),
+                                          ),
+                                        ),
+
+
+                                      ],
+                                    ),
+                                    const SizedBox(width: 8), // Add space between the containers
+                                    Text(
+                                      "Passport should not more then 8MB\nUpload with clean background",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ]),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSectionTitle(context,"Submit")
                 ],
               )),
         ));
@@ -1437,47 +1761,106 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   }
 
 
-  Widget _buildSectionTitle(String title) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                if (_click) return; // Prevent multiple presses
-                if (widget.edit == true) {
-                  _EditFarmer();
-                } else {
-                  _CreateFarmer();
-                }
-                print('Button Pressed');
+  // Widget _buildSectionTitle(String title) {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 8.0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Expanded(
+  //           child: ElevatedButton(
+  //             onPressed: () {
+  //               if (_click) return; // Prevent multiple presses
+  //               if (widget.edit == true) {
+  //                 _EditFarmer();
+  //               } else {
+  //                 _CreateFarmer();
+  //               }
+  //               print('Button Pressed');
+  //             },
+  //             style: ElevatedButton.styleFrom(
+  //               foregroundColor: Colors.white,
+  //               backgroundColor: Colors.indigo[400],
+  //               padding:
+  //               const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(6.0),
+  //               ),
+  //               textStyle: const TextStyle(
+  //                 fontWeight: FontWeight.bold,
+  //                 fontSize: 16,
+  //               ),
+  //             ),
+  //             child: _click
+  //                 ? CircularProgressIndicator(
+  //               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+  //             )
+  //                 :  Text(title),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+
+        ElevatedButton(
+          onPressed: () {
+            // _CreateSoil();
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Are you sure you want to submit?'),
+                  // content: Text(''),
+                  actions: [
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                        if (_click) return; // Prevent multiple presses
+                        if (widget.edit == true) {
+                          print("click==_EditFarmer");
+                          _EditFarmer();
+                        } else {
+                          print("click==_CreateFarmer");
+                          _CreateFarmer();
+                        }
+                      },
+                    ),
+                  ],
+                );
               },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.indigo[400],
-                padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              child: _click
-                  ? CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
-                  :  Text(title),
+            );
+            print('Button Pressed');
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.indigo[400], // Text color
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6.0),
+            ),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
-        ],
-      ),
-    );
-  }
+          child: Text(title),
+        ),
+      ],
+    ) ;  }
 
   Future<void> _pickImage(ImageSource source, String imageType) async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
@@ -1527,7 +1910,12 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                   fit: BoxFit.cover,
                 )
               else
-                const Icon(Icons.upload_file, size: 50, color: Colors.grey),
+
+                SvgPicture.asset(
+                  'assets/images/upload.svg',  // Path to your SVG file
+                  height: 50,  // Adjust the size as needed
+                  color: Colors.grey,  // Set the color if needed
+                ),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: onUpload,

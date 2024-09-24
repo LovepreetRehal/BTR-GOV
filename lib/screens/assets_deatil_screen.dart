@@ -7,6 +7,8 @@ import 'package:btr_gov/screens/create_crop_details.dart';
 import 'package:btr_gov/screens/create_soil_details.dart';
 import 'package:flutter/material.dart';
 
+import 'edit_create_crop_details.dart';
+
 
 
 
@@ -29,6 +31,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   List<Map<String, dynamic>> _block = [];
   List<Map<String, dynamic>> _vcdcs = [];
   List<Map<String, dynamic>> _revenueVillages = [];
+  List<Map<String, dynamic>> _ownershipTypeList = [];
 
 
 
@@ -56,9 +59,13 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
 
   var _Alldata;
   var _LandData;
+  String? land_id = '';
 
   bool _click = true;
   bool loadlist = true;
+
+
+  late List<dynamic> lands;
 
   Singlefarmermodel? farmerData ;
   var paramdic = {"": ""};
@@ -75,8 +82,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
           // _farmerCategories = List<Map<String, dynamic>>.from(
           //     responseData["data"]["categoryWiseFarmerStats"]);
           ;
-          _district = List<Map<String, dynamic>>.from(
-              responseData["data"]["districts"]);
+          _district = List<Map<String, dynamic>>.from(responseData["data"]["districts"]);
           setState(() {});
           // final farmerStatsResponse =
           //     FarmerStatsResponse.fromJson(responseData);
@@ -97,55 +103,35 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
     });
   }
 
-  void getAssetsDetail(String? uuid) {
-    setState(() {
-      loadlist = true; // Set to true before starting the API call
-    });
+  getdata(String uuid) {
 
-    ApiClient().getAssetsDetail(Utils.assetsDeatilGet+uuid!, true, paramdic).then((onValue) {
+    ApiClient().getData(Utils.assetsGet+uuid, true, paramdic).then((onValue) {
       if (onValue.statusCode == 200) {
-        var responseBody = onValue.body;
-        print("Response Body: $responseBody");
+        var data = json.decode(onValue.body);
+        // _Allfarmar = Farmarlist.fromJson(data["data"]);
+        print('egtdataRehal  ->'+uuid);
+        // List<dynamic> landssend = jsonData["data"]["lands"]; // Extracting lands list from the JSON
 
-        try {
-          var data = json.decode(responseBody);
-          print("Decoded JSON: $data");
+        lands = data["data"]["lands"]; // Accessing the 'lands' list
+        print('egtdataRehal'+lands.toString());
 
-          if (data is Map<String, dynamic> && data['data'] != null) {
-            _LandData = Singlefarmermodel.fromJson(data);
-            print("Parsed Data: ${_LandData?.toJson()}");
-            Utils.toast(_LandData!.message);
-
-            // Navigate to the next screen after successful data fetch
-            Navigator.push(context, MaterialPageRoute(builder: (context) => AssetsDeatilScreen(farmerData: _LandData)),);
-
-          } else {
-            print("Error: 'data' is null or unexpected structure");
-            Utils.toast(data['errors']);
-          }
-        } catch (e) {
-          print("Error parsing data: $e");
-        }
+        loadlist = false;
       } else {
-        print("Error: ${onValue.statusCode}");
-        Utils.toast('The registration id field is required.');
+        loadlist = false;
       }
-
-      setState(() {
-        loadlist = false; // Set to false after the data is loaded
-      });
-    }).catchError((error) {
-      print("Error: $error");
-      Utils.toast('The registration id field is required.');
-      setState(() {
-        loadlist = false; // Set to false even if there is an error
-      });
+      setState(() {});
     });
   }
 
 
-
   Future<void> _Create() async {
+
+    if (_plotAreaController.text.trim().isEmpty) {
+      print('Please enter Plot Area');
+      Utils.toast('Please enter Plot Area');
+      return;
+    }
+
     setState(() {
       _click = true;
     });
@@ -167,7 +153,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
         "patta_number": _pattaNumber.toString(),
         "dag_number": _dagNumber.toString(),
       };
-      print('rehal->>>>   $param');
+      print('assetscreate rehal->>>>   $param');
       ApiClient().addAssetsCreate(Utils.assetsCreate+farmerData!.data.farmer.uuid, param, []).then((onValue) {
         if (onValue.statusCode == 200) {
           var data = json.decode(onValue.body);
@@ -200,14 +186,15 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
      farmerData = widget.farmerData;
 
     fetchCategoryWiseFarmerStats();
+    getdata(farmerData!.data.farmer.uuid);
 
   }
 
 
 
 
-  apiDeleteCall(id) {
-    ApiClient().deleteData(Utils.assetsDelete + id, true).then((onValue) {
+  apiDeleteCall(id, landUUID) {
+    ApiClient().deleteData(Utils.assetsDelete + /*id+"/"+*/landUUID, true).then((onValue) {
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         // Show success message
@@ -219,6 +206,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
         );
         setState(() {
           // getdata();
+          getdata(farmerData!.data.farmer.uuid);
 
         });
         print(data["data"]);
@@ -229,8 +217,8 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
         _click = false;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Success: ${data["message"] ?? "Data deleted successfully"}'),
-            backgroundColor: Colors.green,
+            content: Text('Error: ${data["errors"] ?? "Data deleted successfully"}'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -257,10 +245,16 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 15),
+                    loadlist ? Center(child: CircularProgressIndicator(),) : ListView.builder(
+          shrinkWrap: true,
+            primary: false,
+            padding: EdgeInsets.zero,
+            itemCount: lands.length, // Dynamically generate the list based on the number of lands
+            itemBuilder: (BuildContext context, int index) {
+              var data = lands[index]; // Get each land's data
 
-                    const SizedBox(height: 36),
-
-              Container(
+              return  Container(
                 margin: EdgeInsets.only(bottom: 6),
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -269,101 +263,129 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildDetailRow('Registration No', farmerData!.data.farmer.registrationId),
+                    _buildDetailRow('Status', data["status"]),
                     Divider(
                       height: 6.0,
                       color: Colors.grey.shade300,
                     ),
-                    _buildDetailRow("Name", farmerData!.data.farmer.firstName),
-                    _buildDetailRow("Mobile Number No", farmerData!.data.farmer.mobileNumber),
-                    _buildDetailRow("Email", farmerData!.data.farmer.email),
-                    _buildDetailRow("Status", farmerData!.data.farmer.status),
-                    _buildDetailRow("Govt Farmer Id", farmerData!.data.farmer.govtFarmerId),
+                    _buildDetailRow("Hectare", data["plot"].toString()),
+                    _buildDetailRow("Bigha", data["plot_in_bigha"].toString()),
+                    _buildDetailRow("Ownership", data["ownership"]),
+                    _buildDetailRow("Type", data["type_of_land"]),
+                    _buildDetailRow("District", data["address"]["district"]),
+                    _buildDetailRow("Block", data["address"]["block"]),
+                    _buildDetailRow("VCDC", data["address"]["vcdc"]),
+                    _buildDetailRow("Village", data["address"]["revenue_village"]),
                     SizedBox(height: 6),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     _buildRow("District", data["district"]),
-                    //     _buildRow("Block", data["block"]),
-                    //   ],
-                    // ),
-                    // SizedBox(height: 6),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     _buildRow("VCDC", data["vcdc"]),
-                    //     _buildRow("Village", data["vill_1"]),
-                    //   ],
-                    // ),
-                    SizedBox(height: 6),
+
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Crops Button
-                        ElevatedButton(
-                          onPressed: () {
-                            // Action for Crops button
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CreateCropDetails(farmerData?.data.farmer.uuid)),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(color: Colors.black), // Black border
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding for smaller button
-                            minimumSize: Size(60, 30), // Minimum size for the button
-                          ),
-                          child: Text(
-                            'Crops',
-                            style: TextStyle(color: Colors.black, fontSize: 12), // Smaller text size
-                          ),
+                        // Crops and Soil buttons
+                        Row(
+                          children: [
+                            // Crops Button
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => CreateCropDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.black),
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                minimumSize: Size(60, 30),
+                              ),
+                              child: Text(
+                                'Crops',
+                                style: TextStyle(color: Colors.black, fontSize: 12),
+                              ),
+                            ),
+                            SizedBox(width: 4),
+
+                            // Soil Button
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => CreateSoilDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.black),
+                                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                minimumSize: Size(60, 30),
+                              ),
+                              child: Text(
+                                'Soil',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 4), // Spacing between buttons
 
-                        // // View Button
-                        // ElevatedButton(
-                        //   onPressed: () {
-                        //     // Action for View button
-                        //   },
-                        //   style: OutlinedButton.styleFrom(
-                        //     backgroundColor: Colors.white,
-                        //     side: BorderSide(color: Colors.black), // Black border
-                        //     padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
-                        //     minimumSize: Size(60, 30), // Minimum size for the button
-                        //   ),
-                        //   child: Text(
-                        //     'View',
-                        //     style: TextStyle(color: Colors.black, fontSize: 12), // Smaller text size
-                        //   ),
-                        // ),
-                        // SizedBox(width: 4),
+                        // Spacer pushes the Edit and Delete buttons to the right
+                        Spacer(),
 
-                        // Soil Button
-                        ElevatedButton(
+                        // Edit and Delete buttons aligned to the right
+                        Row(
+                          children: [
+                            // Edit button
+                            IconButton(
+                              icon: Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => EditCreateCropDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                );
+                              },
+                            ),
+                            // Delete button
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Confirm Delete'),
+                                      content: Text('Are you sure you want to delete this farmer?'),
+                                      actions: [
+                                        TextButton(
+                                          child: Text('Cancel'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text('Delete'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            // Call your delete function here
+                                            apiDeleteCall(farmerData?.data.farmer.uuid,data["uuid"]);
 
-                          onPressed: () {
-                            // Action for Soil button
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CreateSoilDetails(farmerData?.data.farmer.uuid)),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(color: Colors.black), // Black border
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjust padding
-                            minimumSize: Size(60, 30), // Minimum size for the button
-                          ),
-                          child: Text(
-                            'Soil',
-                            style: TextStyle(color: Colors.black), // Black text
-                          ),
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
-                    )
-                  ],
-                ),
-              ),
+                    ),
+              ]
+                )
+              );
+
+            },
+          ),
+
 
               const SizedBox(height: 36),
                     Card(
@@ -386,7 +408,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                                       // Handle the changed text
                                       _plotArea = value;
                                       print('FirstName changed: $value');
-                                    },
+                                    },isPhone: true
                                   ),
 
                                   const SizedBox(height: 16),
@@ -558,7 +580,32 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
       children: [
         ElevatedButton(
           onPressed: () {
-            _Create();
+           showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Are you sure you want to submit?'),
+                  // content: Text(''),
+                  actions: [
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        _Create(); // Close the dialog
+                        Navigator.of(context).pop(); // Close the dialog
+
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+
             // Navigator.push(context, MaterialPageRoute(builder: (context) => CreateCropDetails()),);
           },
           style: ElevatedButton.styleFrom(

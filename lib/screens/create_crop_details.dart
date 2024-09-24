@@ -12,10 +12,13 @@ import 'package:btr_gov/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'edit_crop_details.dart';
+
 class CreateCropDetails extends StatefulWidget {
 
-  String? uuid;
-  CreateCropDetails(String? this.uuid);
+  String? landUuid;
+  String? farmerUuid;
+  CreateCropDetails(String? this.farmerUuid, this.landUuid);
 
   @override
   _CreateCropDetailsScreen createState() => _CreateCropDetailsScreen();
@@ -27,8 +30,7 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
   final List<String>  _cropName = ['Lentil'];
   final List<String>  _seasonName = ['Summer','Winter','Autumn'];
   final List<String> _seasonalPerineal = ['Perennail (Plantation)','Biennial(Once in 2 years)','Annual (Once in a year)'];
-  final List<String> _harvestingYear = [
-    ...{'2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'}
+  final List<String> _harvestingYear = [...{'2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'}
   ].toList();  final List<String> _harvestingMonth = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   String? _selectedCropType = ''; // Set initial value to match the list
   String? _selectedSeasonName ; // Set initial value to match the list
@@ -63,6 +65,10 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
   final TextEditingController _cultivatedCropQuantityController = TextEditingController();
 
   bool _click = false;
+  bool loadlist = true;
+  var paramdic = {"": ""};
+  // late List<dynamic> lands;
+  List<dynamic> lands = [];
 
   Future<void> _CreateCrop() async {
     setState(() {
@@ -108,12 +114,12 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
           "harvesting_month": _selectedHarvestingMonth.toString(),
           "harvest_quantity": _harvestedQuantity.toString(),
           "variety_name": "cbcbvhdsbf",
-          "production_cost": _schemeName.toString(),
+          "production_cost": _productionCost.toString(),
           "return_amount": _assistantAmount.toString()
 
       };
       print('rehal->>>>   $param');
-      ApiClient().addAssetsCrop(Utils.addAssetsCrop+"/0cbb4fd7-a1de-4ff3-8bc1-5ecd54399d3a/f6414f59-ea3c-42e4-b0ae-a72bcf713c10", param, []).then((onValue) {
+      ApiClient().addAssetsCrop(Utils.addAssetsCrop+widget.farmerUuid.toString()+"/"+widget.landUuid.toString(), param, []).then((onValue) {
         if (onValue.statusCode == 200) {
           var data = json.decode(onValue.body);
           Utils.toast(data["message"].toString());
@@ -137,6 +143,88 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
     }
   }
 
+
+  apideleteSoil(String cropUuid) {
+    ApiClient()
+        .deleteAssetsData(Utils.deleteCropDelete + /*widget.farmerUuid.toString()+"/"+*/cropUuid, true)
+        .then((onValue) {
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body);
+        // Show success message
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Success: ${data["message"] ?? "Data deleted successfully"}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          // getdata();
+          Navigator.pop(context);
+        });
+        print(data["data"]);
+        _click = false;
+      } else {
+        var data = json.decode(onValue.body);
+
+        _click = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Success: ${data["message"] ?? "Data deleted successfully"}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      setState(() {});
+    });
+  }
+
+  getdata(String uuid) {
+    // Initialize the API call
+    ApiClient().getData(Utils.assetsCropCreate + widget.farmerUuid.toString()+"/"+widget.landUuid.toString(), true, paramdic).then((onValue) {
+      // Check if the API response is successful
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body); // Parse the response body to JSON
+        print('Response Data for UUID -> ' + uuid);
+
+        // Extracting the crops list from the JSON data
+        if (data["status"] == true && data["data"] != null) {
+          lands = data["data"]["crops"]; // Accessing the crops list from data
+        } else {
+          lands = []; // Handle the case where crops are not available
+        }
+
+        // Debug print to check the extracted crops list
+        print('Extracted Crops List: ' + lands.toString());
+
+        // Set loading status to false once data is fetched
+        loadlist = false;
+      } else {
+        // Handle the case when the response status code is not 200
+        print('Failed to fetch data. Status Code: ${onValue.statusCode}');
+        loadlist = false;
+      }
+      // Update the state to reflect the data change
+      setState(() {});
+    }).catchError((error) {
+      // Handle errors like network failures or parsing issues
+      print('Error fetching data: $error');
+      loadlist = false;
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getdata(widget.landUuid.toString());
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,10 +240,12 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
               },),),
         body: SingleChildScrollView(
           child: Padding(
+
               padding: const EdgeInsets.all(16.0),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+
                     const SizedBox(height: 16),
                     Card(
                         shape: RoundedRectangleBorder(
@@ -178,6 +268,89 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
                                   ),
 
                                 ]))),
+                    const SizedBox(height: 16),
+                    loadlist ? Center(child: CircularProgressIndicator(),) : ListView.builder(
+                      shrinkWrap: true,
+                      primary: false,
+                      padding: EdgeInsets.zero,
+                      itemCount: lands.length, // Dynamically generate the list based on the number of lands
+                      itemBuilder: (BuildContext context, int index) {
+                        var data = lands[index]; // Get each land's data
+
+                        return  Container(
+                            margin: EdgeInsets.only(bottom: 6),
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade500),
+                            ),
+                            child: Column(
+                                children: [
+                                  _buildDetailRow('type', data["type"]),
+                                  Divider(
+                                    height: 6.0,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  _buildDetailRow("quantity", data["quantity"].toString()),
+                                  _buildDetailRow("Plantation", data["number_of_plantation"].toString()),
+                                  _buildDetailRow("Season", data["season"].toString()),
+                                  _buildDetailRow("Perennial", data["seasonal_perennial"].toString()),
+                                  _buildDetailRow("Cultivation Month", data["cultivation_month"].toString()),
+                                  _buildDetailRow("Cultivation Year", data["cultivation_year"].toString()),
+                                  _buildDetailRow("Harvesting Year", data["harvesting_year"].toString()),
+                                  _buildDetailRow("Assistant Amount", data["assistant_amount"].toString()),
+                                  _buildDetailRow("Return Amount", data["return_amount"].toString()),
+                                  SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      // Edit button
+                                      IconButton(
+                                        icon: Icon(Icons.edit, color: Colors.blue),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditCropDetails(widget.farmerUuid, widget.landUuid,data["uuid"].toString())),);
+                                        },
+                                      ),
+                                      // Delete button
+                                      IconButton(
+                                        icon: Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text('Confirm Delete'),
+                                                content: Text('Are you sure you want to delete this farmer?'),
+                                                actions: [
+                                                  TextButton(
+                                                    child: Text('Cancel'),
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                  ),
+                                                  TextButton(
+                                                    child: Text('Delete'),
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                      // Call your delete function here
+                                                      apideleteSoil(data["uuid"].toString());
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                ]
+                            )
+                        );
+
+                      },
+                    ),
+
                     const SizedBox(height: 16),
                     Card(
                         shape: RoundedRectangleBorder(
@@ -231,7 +404,7 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
                                       // Handle the changed text
                                       _landAreaUsesLevel = value;
                                       print('Land area changed: $value');
-                                    },
+                                    },isPhone: true
                                   ),
                                   const SizedBox(height: 16),
                                   _buildDropdown(
@@ -482,6 +655,25 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
         ));
   }
 
+
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildDropdown(String label,String hint, String? selectedValue, dynamic items,
       ValueChanged<String?> onChanged) {
     // Ensure that selectedValue is either null or matches one of the items
@@ -582,10 +774,34 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
       children: [
         ElevatedButton(
           onPressed: () {
-            _CreateCrop();
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Are you sure you want to submit?'),
+                  // content: Text(''),
+                  actions: [
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        _CreateCrop();
+                        Navigator.of(context).pop(); // Close the dialog
 
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => CreateCropDetails()),);
+                        // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
           },
+
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white, backgroundColor: Colors.indigo[400], // Text color
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),

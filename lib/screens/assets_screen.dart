@@ -80,6 +80,25 @@ class _AssetsScreen extends State<AssetsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Color(0xFFE6E8FF),
+        // backgroundColor: Color(0xFF2F365F),
+        title: Row(
+          children: [
+            Image.asset(
+              'resources/image/BTRgov-logo.png', // Path to your logo
+              height: 50, // Adjust height as needed
+            ),
+            SizedBox(width: 8), // Space between logo and title
+            // Text(
+            //   'Add Farmer',
+            //   style: TextStyle(color: Colors.black), // Text color
+            // ),
+          ],
+        ),
+        centerTitle: false, // Center title is false since we are using Row
+
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -126,8 +145,8 @@ class _AssetsScreen extends State<AssetsScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   String registrationId = _registrationIdController.text.trim();
-                                  // paramdic["registration_id"] = registrationId; // Update with actual ID
-                                  paramdic["registration_id"] = '724221590191084490'; // Update with actual ID
+                                  paramdic["registration_id"] = registrationId; // Update with actual ID
+                                  // paramdic["registration_id"] = '724221590191084490'; // Update with actual ID
                                   loadlist = true; // Show the progress bar
                                   setState(() {});
                                   getdata(); // Fetch data
