@@ -4,6 +4,7 @@ import 'package:btr_gov/data/ApiClient.dart';
 import 'package:btr_gov/model/Farmarlist.dart';
 import 'package:btr_gov/retrofit/utils.dart';
 import 'package:btr_gov/screens/add_farmer_screen.dart';
+import 'package:btr_gov/screens/assets_deatil_screen.dart';
 import 'package:btr_gov/screens/view_farmer_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -486,7 +487,8 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                             );
                                           },
                                           child: Icon(Icons.edit),
-                                        ),  InkWell(
+                                        ),
+                                        InkWell(
                                           onTap: () {
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
@@ -541,6 +543,18 @@ class _FarmerScreenState extends State<FarmersScreen> {
                                             // Handle delete action here
                                           },
                                         ),
+
+                                        SizedBox(height: 6),
+                                        // Edit button
+                                        InkWell(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(builder: (context) => AssetsDeatilScreen(data["farmer_uuid"])),
+                                                );
+                                              },
+                                              child: Icon(Icons.event_note),
+                                            ),
                                       ],
                                     )
                                   ],

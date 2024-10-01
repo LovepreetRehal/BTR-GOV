@@ -76,9 +76,35 @@ class _EditFarmerState extends State<EditFarmerScreen> {
 
   //this is for geting name
 
-  getEditData(bool edit, String? id) {
-    loadlist = true;
+  void getEditData(bool edit, String? id) {
+    // Show loading dialog before starting the data fetch
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Loading data..."), // Loading message
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    loadlist = true; // Start loading state
+
     ApiClient().getData(Utils.editDetail + "$id", true, "").then((onValue) {
+      // Close the loading dialog once the operation completes
+      Navigator.of(context, rootNavigator: true).pop();
+
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         print(data["data"]);
@@ -92,11 +118,17 @@ class _EditFarmerState extends State<EditFarmerScreen> {
         _block = _district.firstWhere((district) => district["name"] == _selectedDistricts)["blocks"];
         _vcdcs = _block.firstWhere((block) => block["name"] == _selectedBlocks)["vcdcs"];
         _revenueVillages = _vcdcs.firstWhere((vcdc) => vcdc["name"] == _selectedVcdcs)["revenueVillages"];
-
-        loadlist = false;
       } else {
-        loadlist = false;
+        // Handle the error response
+        print("Error: ${onValue.statusCode}");
       }
+      loadlist = false; // End loading state
+      setState(() {});
+    }).catchError((error) {
+      // Close the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+      loadlist = false; // End loading state
+      Utils.toast(error.toString()); // Show error message
       setState(() {});
     });
   }

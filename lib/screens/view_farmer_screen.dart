@@ -21,6 +21,7 @@ class ViewFarmerScreen extends StatefulWidget {
 
 class _ViewFarmerState extends State<ViewFarmerScreen> {
   String? _selectedSalutation = 'Mr';
+  String? _status = '';
   String? _selectedCountry = 'India';
   String? _selectedFarmerCategories = '';
   String? _selectedEducation = 'EDU_A';
@@ -52,6 +53,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
 
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _middleNameController = TextEditingController();
   final TextEditingController _FamilyNameController = TextEditingController();
@@ -83,40 +85,79 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
     print('Edit mode: ${widget.edit}');
     print('Farmer ID: ${widget.id}');
     if (widget.edit && widget.id != null) {
-      getEditData(widget.id!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        getEditData(context, widget.id); // Pass the context and ID
+      });
+      // getEditData(context,widget.id!);
     } else {
       loadlist = false;
       setState(() {});
     }
   }
 
-
-  getEditData( String? id) {
+  void getEditData(BuildContext context, String? id) {
     loadlist = true;
+
+    // Show the loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents dismissal by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Loading..."), // Loading message
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     ApiClient().getData(Utils.editDetail + "$id", true, "").then((onValue) {
+      // Close the loading dialog when the request completes
+      Navigator.of(context, rootNavigator: true).pop();
+
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         print(data["data"]);
         data = data["data"]["editFarmer"];
 
+        // Populate form fields with data
         _dobController.text = data['date_of_birth'] ?? '';
         _mobilenumberController.text = data['mobile_number'] ?? '';
         _firstNameController.text = data['first_name'] ?? '';
+        _statusController.text = data['status'] ?? '';
         _lastNameController.text = data['last_name'] ?? '';
         _middleNameController.text = data['middle_name'] ?? '';
-        // _selectedValue = data['gender'] ?? '';
-        // _selectedDistricts = data['district'] ?? '';
-        // _selectedBlocks = data['bock'] ?? '';
-        // _selectedVcdcs = data['vcdc'] ?? '';
+        if(data['gender']== 'GEN001'){
+          _selectedValue =  'Male';
+
+        }else{
+          _selectedValue = 'Female';
+
+        }
+        _selectedDistricts = data['district'] ?? '';
+        _FamilyNameController.text = data['family_name'] ?? '';
+        _selectedBlocks = data['block'] ?? '';
+        _selectedVcdcs = data['vcdc'] ?? '';
+        _selectedState = data['state'] ?? '';
         _selectedRevenueVillages = data['revenue_village'] ?? '';
         _alternateNumberController.text = data['alternate_number'] ?? '';
         _emailController.text = data['email'] ?? '';
         _hornetController.text = data['horticulture_id'] ?? '';
-        _villageNameController.text = data['revenue_village'] ?? '';
+        _villageNameController.text = data['revenue_village_code'] ?? '';
         _addressLineController.text = data['address_line_1'] ?? '';
         _pincodeController.text = data['pincode'] ?? '';
         _aadharCardController.text = data['aadhar_number'] ?? '';
         _panCardController.text = data['pan_number'] ?? '';
+        _rationCardController.text = data['ration_card'] ?? '';
         _voterCardController.text = data['voter_number'] ?? '';
         _maleMemberController.text = data['male_members'].toString() ?? '';
         _feMaleMemberController.text = data['female_members'].toString() ?? '';
@@ -127,19 +168,29 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
         _ifscCodeController.text = data['ifsc_code'].toString() ?? '';
         _bankNameController.text = data['bank_name'].toString() ?? '';
         _branchNameController.text = data['branch_name'].toString() ?? '';
+        // Uncomment these lines if needed
         // _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
         // _photoImageURL = data['photograph']?.toString();
         // _aadharImageURL = data['aadhar_card_image']?.toString();
         // _voterIdImageURL = data['voter_card_image']?.toString();
         // _passbookImageURL = data['passbook_image']?.toString();
-        loadlist = false;
+
+        loadlist = false; // Data fetched successfully
       } else {
-        loadlist = false;
+        loadlist = false; // Handle error response
+        // You can show an error message here if needed
       }
+
+      // Call setState to update the UI if necessary
+      setState(() {});
+    }).catchError((error) {
+      // Close the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+      print("Error: $error");
+      loadlist = false; // Handle error in case of an exception
       setState(() {});
     });
   }
-
 
 
   Future<void> _pickImage(ImageSource source, String imageType) async {
@@ -175,7 +226,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
     const String placeholderImageUrl = 'https://via.placeholder.com/100';
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           decoration: BoxDecoration(
@@ -331,6 +382,8 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -367,16 +420,44 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                   ),
                 ),
               ),
-
-              if (loadlist)
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.black54, // semi-transparent background
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
+              const SizedBox(height: 36),
+              const Text(
+                'Photograph',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              const SizedBox(height: 16),
+
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4,
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start, // This keeps the children at the start
+                    children: [
+                      Expanded(
+                        child: _buildImageUploadSection(
+                          title: 'Photograph',
+                          buttonText: '',
+                          imageFile: _photoImage,
+                          url: _photoImageURL,
+                          onUpload: () => _pickImage(ImageSource.camera, 'Image'),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                ),
+              ),
+
+
+
               /*Row(
                 mainAxisAlignment: MainAxisAlignment.start, // Align the buttons to the start
                 children: [
@@ -441,6 +522,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _buildKeyValueRow('Status', _statusController.text ?? '-'),
                       _buildKeyValueRow('Salutation', _selectedSalutation ?? 'Not Provided'),
                       _buildKeyValueRow('First Name', _firstNameController.text),
                       _buildKeyValueRow('Middle Name', _middleNameController.text),
@@ -559,19 +641,19 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Expanded(
-                          child: _buildImageUploadSection(
-                          title: 'Photograph',
-                          buttonText: 'Upload Photo',
-                          imageFile: _photoImage,
-                          url: _photoImageURL,
-                          onUpload: () => _pickImage(ImageSource.camera, 'Image'),
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: _buildImageUploadSection(
+                        //   title: 'Photograph',
+                        //   buttonText: 'Photo',
+                        //   imageFile: _photoImage,
+                        //   url: _photoImageURL,
+                        //   onUpload: () => _pickImage(ImageSource.camera, 'Image'),
+                        //   ),
+                        // ),
                         Expanded(
                           child: _buildImageUploadSection(
                             title: 'Passbook Image',
-                            buttonText: 'Upload Passbook',
+                            buttonText: 'Passbook',
                             imageFile: _passbookImage,
                             onUpload: () => _pickImage(ImageSource.camera, 'passbook'),
                           ),
@@ -585,7 +667,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                           child: Container(margin: const EdgeInsets.all(8.0), // Add margin to provide space
                             child: _buildImageUploadSection(
                               title: 'Upload Aadhaar Card',
-                              buttonText: 'Browse Image',
+                              buttonText: 'Aadhaar Card',
                               imageFile: _aadharImage,
                               onUpload: () => _pickImage(ImageSource.camera,'aadhar'),
                             ),
@@ -597,7 +679,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                                 8.0), // Add margin to provide space
                             child: _buildImageUploadSection(
                               title: 'Upload Voter ID Card',
-                              buttonText: 'Browse Image',
+                              buttonText: 'Voter ID Card',
                               imageFile: _voterIdImage,
                               onUpload: () => _pickImage(
                                   ImageSource.camera,

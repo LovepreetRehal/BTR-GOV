@@ -229,7 +229,7 @@ class _CreateCropDetailsScreen extends State<CreateCropDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(title: const Text('Farmer Detail')),
-      //   backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
         title: Text('Create Crop Details'),
              leading: IconButton(

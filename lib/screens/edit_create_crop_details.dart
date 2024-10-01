@@ -196,7 +196,7 @@ class _EditCreateCropDetailsScreen extends State<EditCreateCropDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(title: const Text('Farmer Detail')),
-      //   backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
         title: Text('Edit Details'),
              leading: IconButton(

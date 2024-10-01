@@ -41,7 +41,7 @@ class _AssetsScreen extends State<AssetsScreen> {
             // Navigate to the next screen after successful data fetch
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AssetsDeatilScreen(farmerData: _Allfarmar)),
+              MaterialPageRoute(builder: (context) => AssetsDeatilScreen(_Allfarmar!.data.farmer.uuid)),
             );
           } else {
             print("Error: 'data' is null or unexpected structure");
@@ -92,7 +92,7 @@ class _AssetsScreen extends State<AssetsScreen> {
             SizedBox(width: 8), // Space between logo and title
             // Text(
             //   'Add Farmer',
-            //   style: TextStyle(color: Colors.black), // Text color
+            //   style: TextStyle(color: Colors.black), // Text colorfarmers/assets/land/soil/store\
             // ),
           ],
         ),

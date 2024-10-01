@@ -13,9 +13,9 @@ import 'edit_create_crop_details.dart';
 
 
 class AssetsDeatilScreen extends StatefulWidget {
-  final Singlefarmermodel? farmerData;
+  final String? uuid;
 
-  AssetsDeatilScreen({Key? key, this.farmerData});
+  AssetsDeatilScreen( this.uuid);
 
   @override
   _Singlefarmermodel createState() => _Singlefarmermodel();
@@ -65,9 +65,10 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   bool loadlist = true;
 
 
-  late List<dynamic> lands;
+  late List<dynamic> lands = []; // Initialize with an empty list
 
   Singlefarmermodel? farmerData ;
+  String? uuid;
   var paramdic = {"": ""};
 
 
@@ -154,7 +155,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
         "dag_number": _dagNumber.toString(),
       };
       print('assetscreate rehal->>>>   $param');
-      ApiClient().addAssetsCreate(Utils.assetsCreate+farmerData!.data.farmer.uuid, param, []).then((onValue) {
+      ApiClient().addAssetsCreate(Utils.assetsCreate+uuid!, param, []).then((onValue) {
         if (onValue.statusCode == 200) {
           var data = json.decode(onValue.body);
           Utils.toast(data["message"].toString());
@@ -183,10 +184,10 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
   @override
   void initState() {
     super.initState();
-     farmerData = widget.farmerData;
+     uuid = widget.uuid;
 
     fetchCategoryWiseFarmerStats();
-    getdata(farmerData!.data.farmer.uuid);
+    getdata(uuid!);
 
   }
 
@@ -206,7 +207,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
         );
         setState(() {
           // getdata();
-          getdata(farmerData!.data.farmer.uuid);
+          getdata(uuid!);
 
         });
         print(data["data"]);
@@ -289,7 +290,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => CreateCropDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                  MaterialPageRoute(builder: (context) => CreateCropDetails(uuid, data["uuid"])),
                                 );
                               },
                               style: OutlinedButton.styleFrom(
@@ -310,7 +311,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => CreateSoilDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                  MaterialPageRoute(builder: (context) => CreateSoilDetails(uuid, data["uuid"])),
                                 );
                               },
                               style: OutlinedButton.styleFrom(
@@ -339,7 +340,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => EditCreateCropDetails(farmerData?.data.farmer.uuid, data["uuid"])),
+                                  MaterialPageRoute(builder: (context) => EditCreateCropDetails(uuid, data["uuid"])),
                                 );
                               },
                             ),
@@ -365,7 +366,7 @@ class _Singlefarmermodel extends State<AssetsDeatilScreen> {
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                             // Call your delete function here
-                                            apiDeleteCall(farmerData?.data.farmer.uuid,data["uuid"]);
+                                            apiDeleteCall(uuid,data["uuid"]);
 
                                           },
                                         ),

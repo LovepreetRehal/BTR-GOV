@@ -95,7 +95,9 @@ class _CreateSoilDetailsScreen extends State<CreateSoilDetails> {
           []).then((onValue) {
         if (onValue.statusCode == 200) {
           var data = json.decode(onValue.body);
-          Utils.toast(data["message"].toString());
+          // Utils.toast(data["message"].toString());
+          Utils.toast('Soil Details Created Successfully');
+          Navigator.pop(context);
 
           print("Done ${onValue.body}");
         } else {

@@ -71,54 +71,91 @@ class _EditCropDetailsScreen extends State<EditCropDetails> {
   List<dynamic> lands = [];
 
   Future<void> _CreateCrop() async {
+    // Show loading dialog before the operation starts
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Creating crop..."), // Loading message
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     setState(() {
-      _click = true;
+      _click = true; // Disable button or show some loading state
     });
+
     try {
-
       var param = {
-          "scheme_received": "whyvfadf",
-          "assistant_amount": "6655",
-          "crop_type": "CT001",
-          "quantity": "12",
-          "crop_code": "CNP1",
-          "season": "S001",
-          "cultivation_year": "2011",
-          "land_area_usage": _landAreaUsesLevel.toString(),
-          "harvesting_year": _selectedHarvestingYear.toString(),
-          "crop_name": _selectedCropName.toString(),
-          "seasonal_perennial": _selectedSeasonalPerineal.toString(),
-          "number_of_plantation": _numberplantation.toString(),
-          "cultivation_month": "September",
-          "harvesting_month": _selectedHarvestingMonth.toString(),
-          "harvest_quantity": _harvestedQuantity.toString(),
-          "variety_name": "cbcbvhdsbf",
-          "production_cost": _productionCost.toString(),
-          "return_amount": _assistantAmount.toString()
-
+        "scheme_received": "whyvfadf",
+        "assistant_amount": "6655",
+        "crop_type": "CT001",
+        "quantity": "12",
+        "crop_code": "CNP1",
+        "season": "S001",
+        "cultivation_year": "2011",
+        "land_area_usage": _landAreaUsesLevel.toString(),
+        "harvesting_year": _selectedHarvestingYear.toString(),
+        "crop_name": _selectedCropName.toString(),
+        "seasonal_perennial": _selectedSeasonalPerineal.toString(),
+        "number_of_plantation": _numberplantation.toString(),
+        "cultivation_month": "September",
+        "harvesting_month": _selectedHarvestingMonth.toString(),
+        "harvest_quantity": _harvestedQuantity.toString(),
+        "variety_name": "cbcbvhdsbf",
+        "production_cost": _productionCost.toString(),
+        "return_amount": _assistantAmount.toString(),
       };
-      print('rehal->>>>   $param');
-      ApiClient().addAssetsCrop(Utils.assetsCropEdit+widget.farmerUuid.toString()+"/"+widget.landUuid.toString()+"/"+widget.cropsUuid.toString(), param, []).then((onValue) {
-        if (onValue.statusCode == 200) {
-          var data = json.decode(onValue.body);
-          Utils.toast(data["message"].toString());
-          Navigator.pop(context);
 
-          print("Done ${onValue.body}");
-        } else {
-          var data = json.decode(onValue.body);
-          Utils.toast(data["errors"].toString());
-          print("Done ${onValue.body}");
-        }
-        setState(() {
-          _click = false;
-        });
-      });
+      print('rehal->>>>   $param');
+
+      // Perform the API call
+      var onValue = await ApiClient().addAssetsCrop(
+        Utils.assetsCropEdit +
+            widget.farmerUuid.toString() +
+            "/" +
+            widget.landUuid.toString() +
+            "/" +
+            widget.cropsUuid.toString(),
+        param,
+        [],
+      );
+
+      // Close the loading dialog once the operation completes
+      Navigator.of(context, rootNavigator: true).pop();
+
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body);
+        Utils.toast(data["message"].toString());
+        Navigator.pop(context); // Close the current screen
+
+        print("Done ${onValue.body}");
+      } else {
+        var data = json.decode(onValue.body);
+        Utils.toast(data["errors"].toString());
+        print("Done ${onValue.body}");
+      }
     } catch (e) {
-      setState(() {
-        _click = false;
-      });
+      // Close the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+      print(e.toString());
       Utils.toast(e.toString());
+    } finally {
+      setState(() {
+        _click = false; // Re-enable button or reset loading state
+      });
     }
   }
 
@@ -135,7 +172,7 @@ class _EditCropDetailsScreen extends State<EditCropDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(title: const Text('Farmer Detail')),
-      //   backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
         title: Text('Edit Crop Details'),
              leading: IconButton(

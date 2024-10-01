@@ -292,6 +292,29 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       return;
     }
 
+    // Show loading dialog before the operation starts
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Creating farmer..."), // Loading message
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+
     setState(() {
       _click = true;
     });
@@ -397,6 +420,9 @@ class _AddFarmerState extends State<AddFarmerScreen> {
           XFile(_voterIdImage!.path),
         ),
       ]).then((onValue) {
+
+        Navigator.of(context, rootNavigator: true).pop();
+
         if (onValue.statusCode == 200) {
           var data = json.decode(onValue.body);
           Utils.toast(data["message"].toString());
@@ -412,10 +438,14 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         });
       });
     } catch (e) {
-      setState(() {
-        _click = false;
-      });
+      // Close the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+      print(e.toString());
       Utils.toast(e.toString());
+    } finally {
+      setState(() {
+        _click = false; // Re-enable button or reset loading state
+      });
     }
   }
 
@@ -562,23 +592,53 @@ class _AddFarmerState extends State<AddFarmerScreen> {
   }
 
 
-  getEditData(bool edit, String? id) {
+  void getEditData(BuildContext context, bool edit, String? id) {
     loadlist = true;
+
+    // Show the loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents dismissal by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 36),
+                Text("Loading...",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black
+                  ),
+
+                ), // Loading message
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     ApiClient().getData(Utils.editDetail + "$id", true, "").then((onValue) {
+      // Close the loading dialog when the request completes
+      Navigator.of(context, rootNavigator: true).pop();
+
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
         print(data["data"]);
         data = data["data"]["editFarmer"];
 
+        // Populate form fields with data
         _dobController.text = data['date_of_birth'] ?? '';
         _mobilenumberController.text = data['mobile_number'] ?? '';
         _firstNameController.text = data['first_name'] ?? '';
         _lastNameController.text = data['last_name'] ?? '';
         _middleNameController.text = data['middle_name'] ?? '';
-        // _selectedValue = data['gender'] ?? '';
-        // _selectedDistricts = data['district'] ?? '';
-        // _selectedBlocks = data['bock'] ?? '';
-        // _selectedVcdcs = data['vcdc'] ?? '';
         _selectedRevenueVillages = data['revenue_village'] ?? '';
         _alternateNumberController.text = data['alternate_number'] ?? '';
         _emailController.text = data['email'] ?? '';
@@ -600,10 +660,19 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         _branchNameController.text = data['branch_name'].toString() ?? '';
         _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
 
-        loadlist = false;
+        loadlist = false; // Data fetched successfully
       } else {
-        loadlist = false;
+        loadlist = false; // Handle error response
+        // You can show an error message here if needed
       }
+
+      // Call setState to update the UI if necessary
+      setState(() {});
+    }).catchError((error) {
+      // Close the loading dialog in case of an error
+      Navigator.of(context, rootNavigator: true).pop();
+      print("Error: $error");
+      loadlist = false; // Handle error in case of an exception
       setState(() {});
     });
   }
@@ -644,7 +713,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         print('Error: ${onValue.body}');
       }
       if (widget.edit == true) {
-        getEditData(widget.edit, widget.id); // Fetch farmer details when screen is opened
+        getEditData(context,widget.edit, widget.id); // Fetch farmer details when screen is opened
       }
     });
   }
@@ -1386,16 +1455,16 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Expanded(
-                                            child: _buildImageUploadSection(
-                                              title: 'User Personal Image',
-                                              buttonText: 'Upload user Image',
-                                              imageFile: _photoImage,
-                                              onUpload: () => _pickImage(
-                                                  ImageSource.camera, 'Image'),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8), // Add space between the containers
+                                          // Expanded(
+                                          //   child: _buildImageUploadSection(
+                                          //     title: 'User Personal Image',
+                                          //     buttonText: 'Upload user Image',
+                                          //     imageFile: _photoImage,
+                                          //     onUpload: () => _pickImage(
+                                          //         ImageSource.camera, 'Image'),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(width: 8), // Add space between the containers
                                           Expanded(
                                             child: _buildImageUploadSection(
                                               title: 'Passbook Image',
@@ -1509,7 +1578,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
                                               title: 'Photograph',
                                               buttonText: 'Browse Image',
                                               imageFile: _aadharImage,
-                                              onUpload: () => _pickImage(ImageSource.camera, 'aadhar'),
+                                              onUpload: () => _pickImage(ImageSource.camera, 'Image'),
                                             ),
                                           ),
                                         ),
