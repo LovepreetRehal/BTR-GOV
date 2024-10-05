@@ -37,12 +37,9 @@ class _EditSoilDetailsScreen extends State<EditSoilDetails> {
   var paramdic = {"": ""};
   List<dynamic> lands = [];
 
-  final TextEditingController _nitrogenLevelController =
-      TextEditingController();
-  final TextEditingController _potassiumLevelController =
-      TextEditingController();
-  final TextEditingController _phosphorusLevelController =
-      TextEditingController();
+  final TextEditingController _nitrogenLevelController = TextEditingController();
+  final TextEditingController _potassiumLevelController = TextEditingController();
+  final TextEditingController _phosphorusLevelController = TextEditingController();
   final TextEditingController _phLevelController = TextEditingController();
   final TextEditingController _carbonController = TextEditingController();
   final TextEditingController _zincLevelController = TextEditingController();
@@ -123,13 +120,84 @@ class _EditSoilDetailsScreen extends State<EditSoilDetails> {
   }
 
 
+  getSoilData() {
+    ApiClient().getAssetsLandEdit(Utils.assetsSoilGet + widget.farmerID.toString()+"/"+widget.landID.toString()+"/"+widget.soilUuid.toString(), true, "").then((onValue) {
+      var data = json.decode(onValue.body);
+      if (onValue.statusCode == 200) {
+        var soil = data["data"]["editSoil"]; // Accessing the 'lands' object
+
+        if (soil != null) {
+          setState(() {
+            // Assign values from the land object
+
+
+            _nitrogenLevelName = soil['nitrogen_level'].toString();
+            _potassiumLevel = soil['potassium_level'].toString();
+            _phosphorusLevel = soil['phosphorus_level'].toString();
+            _phLevel = soil['pH_level'].toString();
+            _carbonLevel = soil['organic_carbon_level'].toString();
+            _zincLevel = soil['zinc_level'].toString();
+            _sulphurLevel = soil['sulphur_level'].toString();
+            _boronLevel = soil['boron_level'].toString();
+            _selectedDate = soil['date_of_test'].toString();
+            _dateofCollection = soil['date_of_collection'].toString();
+
+
+            _nitrogenLevelController.text = soil['nitrogen_level'].toString();
+            _potassiumLevelController.text = soil['potassium_level'].toString();
+            _phosphorusLevelController.text = soil['phosphorus_level'].toString();
+            _phLevelController.text = soil['pH_level'].toString();
+            _carbonController.text = soil['organic_carbon_level'].toString();
+            _zincLevelController.text = soil['zinc_level'].toString();
+            _sulphurLevelController.text = soil['sulphur_level'].toString();
+            _boronLevelController.text = soil['boron_level'].toString();
+            _selectedDate = soil['date_of_test'].toString();
+            _dateofCollectionController.text = soil['date_of_collection'].toString();
+
+
+
+
+
+            // "soil_type": "SC001",
+            // "nitrogen_level": _nitrogenLevelName.toString(),
+            // "land_area": "",
+            // "potassium_level": _potassiumLevel.toString(),
+            // "phosphorus_level": _phosphorusLevel.toString(),
+            // "micronutrient_level": "",
+            // "date_of_test": _selectedDate.toString(),
+            // "date_of_collection": _dateofCollection.toString(),
+            // "pH_level": _phosphorusLevel.toString(),
+            // "sulphur_level": _sulphurLevel.toString(),
+            // "boron_level": _boronLevel.toString(),
+            // "zinc_level": _zincLevel.toString(),
+            // "organic_carbon_level": _carbonLevel.toString(),
+            // "electric_conductivity_level": '',
+
+            _click = false;
+
+          });
+        } else {
+          // Handle case when 'land' is null
+          _click = false;
+          Utils.toast("No land data available.");
+        }
+      } else {
+        // Handle other status codes
+        _click = false;
+        Utils.toast("Error: ${data["errors"].toString()}");
+      }
+
+
+      setState(() {});
+    });
+  }
 
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    getSoilData();
   }
 
   @override

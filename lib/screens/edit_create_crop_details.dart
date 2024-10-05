@@ -58,6 +58,40 @@ class _EditCreateCropDetailsScreen extends State<EditCreateCropDetails> {
   final TextEditingController _pattaNumberController = TextEditingController();
   final TextEditingController _dagNumberController = TextEditingController();
 
+  // Crop Data Variables
+  String? _cropCode;
+  String? _cropType;
+  String? _season;
+  int? _cropTypeId;
+  int? _quantity;
+  int? _numberOfPlantation;
+  int? _seasonalPerennial;
+  int? _cultivationYear;
+  int? _harvestingYear;
+  String? _cultivationMonth;
+  String? _harvestingMonth;
+  String? _landAreaUsage;
+  String? _harvestQuantity;
+  String? _varietyName;
+  double? _productionCost;
+  double? _returnAmount;
+  String? _schemeReceived;
+  String? _assistantAmount;
+
+// Controllers for TextFields
+  final TextEditingController _cropTypeController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _numberOfPlantationController = TextEditingController();
+  final TextEditingController _cultivationYearController = TextEditingController();
+  final TextEditingController _harvestingYearController = TextEditingController();
+  final TextEditingController _landAreaUsageController = TextEditingController();
+  final TextEditingController _harvestQuantityController = TextEditingController();
+  final TextEditingController _varietyNameController = TextEditingController();
+  final TextEditingController _productionCostController = TextEditingController();
+  final TextEditingController _returnAmountController = TextEditingController();
+  final TextEditingController _schemeReceivedController = TextEditingController();
+  final TextEditingController _assistantAmountController = TextEditingController();
+
   var _Alldata;
 
 
@@ -65,32 +99,112 @@ class _EditCreateCropDetailsScreen extends State<EditCreateCropDetails> {
     ApiClient().getAssetsLandEdit(Utils.assetsLandEdit + widget.farmerUuid.toString()+"/"+widget.landUuid.toString(), true, "").then((onValue) {
       if (onValue.statusCode == 200) {
         var data = json.decode(onValue.body);
-       var lands = data["data"]["lands"]; // Accessing the 'lands' list
+        var land = data["data"]["lands"]; // Accessing the 'lands' object
 
-        setState(() {
-          _plotAreaController.text = data["data"]["lands"]["plot_area_bigha"].toString();
-          _selectedOwnerType = data["data"]["lands"]["plot_area_bigha"].toString();
-          _pattaNumberController.text = data["data"]["lands"]["patta_number"].toString();
-          _pattaNumber = data["data"]["lands"]["patta_number"].toString();
-          _dagNumberController.text = data["data"]["lands"]["dag_number"].toString();
-          _dagNumber = data["data"]["lands"]["dag_number"].toString();
-          _villageNameController.text = data["data"]["lands"]["dag_number"]["address"].toString();
-          _villageName = data["data"]["lands"]["dag_number"]["address"].toString();
-          _addressLineController.text = data["data"]["lands"]["dag_number"]["address"]["line_1"].toString();
-          _addressLine = data["data"]["lands"]["dag_number"]["address"]["line_1"].toString();
-          _pincodeController.text = data["data"]["lands"]["dag_number"]["address"]["pincode"].toString();
-          _pincode = data["data"]["lands"]["dag_number"]["address"]["pincode"].toString();
-          // _dagNumberController.text = data["data"]["lands"]["plot_area_bigha"].toString();
-          _plotArea = data["data"]["lands"]["plot_area_bigha"].toString();
-        });
+        if (land != null) {
+          setState(() {
+            // Assign values from the land object
+            _plotAreaController.text = land["plot_area_bigha"].toString();
+            _selectedOwnerType = land["ownership_id"].toString(); // Assuming you want to set this
+            _pattaNumberController.text = land["patta_number"].toString();
+            _pattaNumber = land["patta_number"].toString();
+            _dagNumberController.text = land["dag_number"].toString();
+            _dagNumber = land["dag_number"].toString();
 
-        _click = false;
+            // Access the address object and its fields
+            if (land["address"] != null) {
+              _villageNameController.text = land["address"]["line_1"].toString();
+              _villageName = land["address"]["line_1"].toString();
+              _addressLineController.text = land["address"]["line_1"].toString();
+              _addressLine = land["address"]["line_1"].toString();
+              _pincodeController.text = land["address"]["pincode"].toString();
+              _pincode = land["address"]["pincode"].toString();
+            }
+            _click = false;
+
+            // Set the plot area if available
+            _plotArea = land["plot_area_bigha"].toString();
+          });
+        } else {
+          // Handle case when 'land' is null
+          _click = false;
+          Utils.toast("No land data available.");
+        }
       } else {
+        // Handle other status codes
         _click = false;
+        Utils.toast("Error: ${onValue.statusCode}");
       }
+
+
       setState(() {});
     });
   }
+
+
+  getCropData() {
+    ApiClient().getAssetsLandEdit(Utils.assetsCropGet + widget.farmerUuid.toString()+"/"+widget.landUuid.toString(), true, "").then((onValue) {
+      if (onValue.statusCode == 200) {
+        var data = json.decode(onValue.body);
+        var crop = data["data"]["editSoil"]; // Accessing the 'lands' object
+
+        if (crop != null) {
+          setState(() {
+            // Assign values from the land object
+            _cropCode = crop['crop_code'] ?? '';
+            _cropTypeId = crop['crop_type_id'];
+            _cropType = crop['crop_type'] ?? '';
+            _quantity = crop['quantity'] ?? 0;
+            _numberOfPlantation = crop['number_of_plantation'] ?? 0;
+            _season = crop['season'] ?? '';
+            _seasonalPerennial = crop['seasonal_perennial'];
+            _cultivationYear = crop['cultivation_year'] ?? 0;
+            _harvestingYear = crop['harvesting_year'] ?? 0;
+            _cultivationMonth = crop['cultivation_month'] ?? '';
+            _harvestingMonth = crop['harvesting_month'] ?? '';
+            _landAreaUsage = crop['land_area_usage'] ?? '';
+            _harvestQuantity = crop['harvest_quantity'] ?? '';
+            _varietyName = crop['variety_name'] ?? '';
+            _productionCost = crop['production_cost'].toDouble();
+            _returnAmount = crop['return_amount'].toDouble();
+            _schemeReceived = crop['scheme_received'] ?? '';
+            _assistantAmount = crop['assistant_amount'] ?? '';
+
+            // Populate the text controllers with the fetched data
+            _cropTypeController.text = _cropType ?? '';
+            _quantityController.text = _quantity?.toString() ?? '';
+            _numberOfPlantationController.text = _numberOfPlantation?.toString() ?? '';
+            _cultivationYearController.text = _cultivationYear?.toString() ?? '';
+            _harvestingYearController.text = _harvestingYear?.toString() ?? '';
+            _landAreaUsageController.text = _landAreaUsage ?? '';
+            _harvestQuantityController.text = _harvestQuantity ?? '';
+            _varietyNameController.text = _varietyName ?? '';
+            _productionCostController.text = _productionCost?.toString() ?? '';
+            _returnAmountController.text = _returnAmount?.toString() ?? '';
+            _schemeReceivedController.text = _schemeReceived ?? '';
+            _assistantAmountController.text = _assistantAmount ?? '';
+
+
+
+            _click = false;
+
+          });
+        } else {
+          // Handle case when 'land' is null
+          _click = false;
+          Utils.toast("No land data available.");
+        }
+      } else {
+        // Handle other status codes
+        _click = false;
+        Utils.toast("Error: ${onValue.statusCode}");
+      }
+
+
+      setState(() {});
+    });
+  }
+
 
   Future<void> _EditLandDetail() async {
 
@@ -190,6 +304,7 @@ class _EditCreateCropDetailsScreen extends State<EditCreateCropDetails> {
     super.initState();
     fetchCategoryWiseFarmerStats();
     getLandEditData();
+    getCropData();
   }
 
   @override

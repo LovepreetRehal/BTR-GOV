@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'farmers_screen.dart';
+
 
 class AddFarmerScreen extends StatefulWidget {
   bool edit = false;
@@ -465,13 +467,6 @@ class _AddFarmerState extends State<AddFarmerScreen> {
 
     var param = {
 
-
-
-
-
-
-
-
       "family_name": _familyName.toString(),
       "monthly_income": (_incomes.indexWhere(
               (e) => e.toString() == _monthlyIncome.toString()) +
@@ -528,7 +523,7 @@ class _AddFarmerState extends State<AddFarmerScreen> {
       "ration_card": _rationCardNumber.toString(),
       "voter_number":  _voterCardController.text.toString(),
       "govt_farmer_id": "",
-      "hortnet_id": "1111111111",
+      "hortnet_id": _hornetController.text.toString(),
       "is_head": "",
       "family_head_id": "",
       "salutation_id": "1",
@@ -563,6 +558,11 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         var data = json.decode(onValue.body);
         Utils.toast(data["message"].toString());
         print("Done ${onValue.body}");
+        // Navigate to FarmersScreen() after successful post
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => FarmersScreen()),
+              (Route<dynamic> route) => false,
+        );
       } else {
         var data = json.decode(onValue.body);
         Utils.toast(data["errors"].toString());
@@ -647,11 +647,14 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         _addressLineController.text = data['address_line_1'] ?? '';
         _pincodeController.text = data['pincode'] ?? '';
         _aadharCardController.text = data['aadhar_number'] ?? '';
+        _aadharNumber = data['aadhar_number'] ?? '';
         _panCardController.text = data['pan_number'] ?? '';
+        _rationCardController.text = data['ration_card'] ?? '';
         _voterCardController.text = data['voter_number'] ?? '';
         _maleMemberController.text = data['male_members'].toString() ?? '';
         _feMaleMemberController.text = data['female_members'].toString() ?? '';
-        _pmkishanController.text = data['is_pm_kishan'] ?? '';
+        // _pmkishanController.text = data['is_pm_kishan'] ?? '';
+        // _pmkishanController.text = data['is_pm_kishan'] ?? '';
         _childrenNoController.text = data['total_member'].toString() ?? '';
         _accountNoController.text = data['acc_num'].toString() ?? '';
         _accountHolderNameController.text = data['acc_holder_name'].toString() ?? '';
@@ -659,6 +662,34 @@ class _AddFarmerState extends State<AddFarmerScreen> {
         _bankNameController.text = data['bank_name'].toString() ?? '';
         _branchNameController.text = data['branch_name'].toString() ?? '';
         _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
+        _pmkishanController.text = data['pm_kishan_number'].toString() ?? '';
+        _hornetController.text = data['hortnet_id'] ?? '';
+        _FamilyNameController.text = data['family_name'] ?? '';
+        _rationCardController.text = data['ration_card'] ?? '';
+
+        // _selectedCountry = _countryList.firstWhere(
+        //         (country) => country['code'] == editFarmer['country_code'],
+        //     orElse: () => {"name": "", "code": ""})['name'];
+
+        // _selectedState = states.firstWhere(
+        //         (state) => state['code'] == editFarmer['state_code'],
+        //     orElse: () => {"name": "", "code": ""})['name'];
+
+        _selectedBlocks = _block.firstWhere(
+                (block) => block['code'] == data['block_code'],
+            orElse: () => {"name": "", "code": ""})['name'];
+
+        _selectedVcdcs = _vcdcs.firstWhere(
+                (vcdc) => vcdc['code'] == data['vcdc_code'],
+            orElse: () => {"name": "", "code": ""})['name'];
+
+        _selectedRevenueVillages = _revenueVillages.firstWhere(
+                (village) => village['code'] == data['revenue_village_code'],
+            orElse: () => {"name": "", "code": ""})['name'];
+
+        setState(() {
+
+        });
 
         loadlist = false; // Data fetched successfully
       } else {

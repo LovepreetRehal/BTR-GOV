@@ -145,8 +145,8 @@ class _AssetsScreen extends State<AssetsScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   String registrationId = _registrationIdController.text.trim();
-                                  paramdic["registration_id"] = registrationId; // Update with actual ID
-                                  // paramdic["registration_id"] = '724221590191084490'; // Update with actual ID
+                                  // paramdic["registration_id"] = registrationId; // Update with actual ID
+                                  paramdic["registration_id"] = '724221590191084490'; // Update with actual ID
                                   loadlist = true; // Show the progress bar
                                   setState(() {});
                                   getdata(); // Fetch data

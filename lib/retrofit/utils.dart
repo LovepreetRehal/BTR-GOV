@@ -22,6 +22,8 @@ class Utils {
   static const String assetsGet = '/api/farmers/assets/land/create/';
   static const String assetsDelete = '/api/farmers/assets/land/delete/';
   static const String assetsLandEdit = '/api/farmers/assets/land/edit/';
+  static const String assetsCropGet = '/api/farmers/assets/land/crops/edit/';
+  static const String assetsSoilGet = '/api/farmers/assets/land/soil/edit/';
   static const String assetsCropCreate = '/api/farmers/assets/land/crops/create/';
   static const String assetsCropEdit = '/api/farmers/assets/land/corps/update/';
   static const String assetsSoilDetail = '/api/farmers/assets/land/soil/create/';

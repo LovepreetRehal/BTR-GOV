@@ -23,7 +23,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
   String? _selectedSalutation = 'Mr';
   String? _status = '';
   String? _selectedCountry = 'India';
-  String? _selectedFarmerCategories = '';
+  String? _selectedFarmerCategories = 'Farmar';
   String? _selectedEducation = 'EDU_A';
   String? _selectedBplStatuses = 'Yes';
   String? _selectedPmKishans = 'Yes';
@@ -151,7 +151,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
         _selectedRevenueVillages = data['revenue_village'] ?? '';
         _alternateNumberController.text = data['alternate_number'] ?? '';
         _emailController.text = data['email'] ?? '';
-        _hornetController.text = data['horticulture_id'] ?? '';
+        _hornetController.text = data['hortnet_id'] ?? '';
         _villageNameController.text = data['revenue_village_code'] ?? '';
         _addressLineController.text = data['address_line_1'] ?? '';
         _pincodeController.text = data['pincode'] ?? '';
@@ -169,7 +169,26 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
         _bankNameController.text = data['bank_name'].toString() ?? '';
         _branchNameController.text = data['branch_name'].toString() ?? '';
         // Uncomment these lines if needed
-        // _pmKishansNumber = data['pm_kishan_number'].toString() ?? '';
+        _pmkishanController.text = data['pm_kishan_number'].toString() ?? '';
+        _selectedFarmerCategories = data['farmer_category_code'].toString() ?? '';
+
+
+        /*   {
+                "name": "Farmer",
+                "code": "CAT001"
+            },
+            {
+                "name": "Farm worker",
+                "code": "CAT002"
+            },
+            {
+                "name": "Processor",
+                "code": "CAT003"
+            },
+            {
+                "name": "Non-farmer",
+                "code": "CAT004"
+            }*/
         // _photoImageURL = data['photograph']?.toString();
         // _aadharImageURL = data['aadhar_card_image']?.toString();
         // _voterIdImageURL = data['voter_card_image']?.toString();
@@ -580,7 +599,7 @@ class _ViewFarmerState extends State<ViewFarmerScreen> {
                           children: [
                             const SizedBox(height: 16),
 
-                            _buildKeyValueRow( 'Farmer Category', ''),
+                            _buildKeyValueRow( 'Farmer Category', _selectedFarmerCategories!),
                             _buildKeyValueRow( 'Social Category', _selectedSocialCategories!),
                             _buildKeyValueRow( 'Education', _selectedEducation!),
                             _buildKeyValueRow( 'Religion', _selectedReligions!),
